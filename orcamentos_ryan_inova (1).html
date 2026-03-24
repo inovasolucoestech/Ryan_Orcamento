@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orçamentos Ryan — INOVA Soluções</title>
+<style>
+  :root {
+    --color-background-primary: #ffffff;
+    --color-background-secondary: #f4f7fb;
+    --color-text-primary: #0d1b3e;
+    --color-text-secondary: #5a6a80;
+    --color-text-tertiary: #8898aa;
+    --color-border-tertiary: rgba(0,0,0,0.12);
+    --color-border-secondary: rgba(0,0,0,0.2);
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); background: #f0f4f8; padding: 2rem 1rem; }
+  .container { max-width: 780px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 2rem; box-shadow: 0 2px 16px rgba(0,0,0,0.08); }
+  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .header h1 { font-size: 18px; font-weight: 600; color: #0d1b3e; }
+  .header p { font-size: 12px; color: var(--color-text-secondary); margin-top: 3px; }
+  .logo { font-size: 20px; font-weight: 700; color: #185FA5; letter-spacing: -0.5px; }
+  .wrap { max-width: 740px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+  .tab { padding: 7px 16px; border-radius: 999px; border: 0.5px solid rgba(0,0,0,0.2); font-size: 13px; font-weight: 500; cursor: pointer; color: var(--color-text-secondary); background: transparent; transition: all 0.15s; }
+  .tab.on { background: #185FA5; color: #fff; border-color: #185FA5; }
+  .panel { display: none; } .panel.on { display: block; }
+  .sec { margin-bottom: 1.25rem; }
+  .sec-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #185FA5; flex-shrink: 0; }
+  .sec-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+  .item { display: grid; gap: 6px; align-items: center; padding: 8px 10px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-primary); margin-bottom: 5px; }
+  .item.g4 { grid-template-columns: 1fr 44px 80px 80px; }
+  .item.g3 { grid-template-columns: 1fr 44px 80px; }
+  .i-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+  .i-spec { font-size: 11px; color: var(--color-text-secondary); margin-top: 1px; }
+  .i-qty { font-size: 13px; color: var(--color-text-secondary); text-align: center; }
+  .i-val { font-size: 13px; color: var(--color-text-secondary); text-align: right; }
+  .i-tot { font-size: 13px; font-weight: 500; color: var(--color-text-primary); text-align: right; }
+  .col-h { display: grid; gap: 6px; padding: 2px 10px 4px; margin-bottom: 2px; }
+  .col-h.g4 { grid-template-columns: 1fr 44px 80px 80px; }
+  .col-h.g3 { grid-template-columns: 1fr 44px 80px; }
+  .cl { font-size: 10px; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; }
+  .cl.r { text-align: right; } .cl.c { text-align: center; }
+  .badge { display: inline-block; font-size: 10px; font-weight: 500; padding: 1px 7px; border-radius: 999px; margin-left: 5px; vertical-align: middle; }
+  .bp { background: #E6F1FB; color: #0C447C; }
+  .bo { background: #FAEEDA; color: #633806; }
+  .bg { background: #EAF3DE; color: #27500A; }
+  .divider { height: 0.5px; background: var(--color-border-tertiary); margin: 1rem 0; }
+  .sum { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-top: 0.5rem; }
+  .srow { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .srow:last-child { border-bottom: none; padding-top: 10px; }
+  .sl { font-size: 13px; color: var(--color-text-secondary); }
+  .sv { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+  .stot-l { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+  .stot-v { font-size: 17px; font-weight: 500; color: #185FA5; }
+  .note { font-size: 11px; color: var(--color-text-tertiary); margin-top: 8px; line-height: 1.6; font-style: italic; }
+  .alert { background: #E6F1FB; border-radius: 0; padding: 10px 14px; margin-bottom: 1rem; border-left: 3px solid #185FA5; }
+  .alert p { font-size: 12px; color: #0C447C; line-height: 1.6; }
+  .alert strong { font-weight: 600; }
+  .serv-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 6px; }
+  .serv-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .serv-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+  .serv-desc { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; line-height: 1.5; }
+  .serv-val { font-size: 14px; font-weight: 600; color: #185FA5; white-space: nowrap; }
+  .muted-bg { background: var(--color-background-secondary); }
+  .footer { margin-top: 2rem; padding-top: 1rem; border-top: 0.5px solid var(--color-border-tertiary); font-size: 11px; color: var(--color-text-tertiary); text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <h1>Orçamentos — Ryan</h1>
+      <p>Projeto de automação residencial · Itabuna, BA</p>
+    </div>
+    <div class="logo">INOVA</div>
+  </div>
+
+  <div class="wrap">
+    <div class="tabs">
+      <button class="tab on" onclick="show('base', this)">Orç. base — sem AC smart</button>
+      <button class="tab" onclick="show('acsmart', this)">+ AC inteligente</button>
+      <button class="tab" onclick="show('cortmotor', this)">+ Cortinas motorizadas</button>
+      <button class="tab" onclick="show('persiana', this)">+ Persianas motorizadas</button>
+      <button class="tab" onclick="show('cameras', this)">+ Câmeras</button>
+      <button class="tab" onclick="show('servico', this)">Serviço INOVA</button>
+    </div>
+
+    <!-- PAINEL BASE -->
+    <div class="panel on" id="p-base">
+      <div class="alert"><p><strong>Orçamento base — prioridades confirmadas.</strong> Iluminação RGB/CCT em toda a casa, sensor de movimento para a escada, Echo Dot já existente (não incluído). AC não inteligente, janelas/persianas e câmeras não incluídos aqui.</p></div>
+      <div class="sec">
+        <div class="sec-head"><div class="dot"></div><span class="sec-title">Iluminação inteligente RGB/CCT — toda a casa</span></div>
+        <div class="col-h g4"><span class="cl">Produto</span><span class="cl c">Qtd</span><span class="cl r">Unit.</span><span class="cl r">Total</span></div>
+        <div class="item g4">
+          <div><div class="i-name">Lâmpada inteligente Elgin Smart Color 10W<span class="badge bp">prioridade</span></div><div class="i-spec">RGB+CCT · Wi-Fi 2.4GHz · Alexa/Google · E27 · Bivolt · ~800 lúmens</div></div>
+          <div class="i-qty">12</div><div class="i-val">R$ 55</div><div class="i-tot">R$ 660</div>
+        </div>
+        <div class="item g4 muted-bg">
+          <div><div class="i-name">Interruptor simples 1 tecla Intelbras EWS 101<span class="badge bo">complemento</span></div><div class="i-spec">Touch · Wi-Fi · Necessário para acender/apagar com botoeira física · Bivolt</div></div>
+          <div class="i-qty">6</div><div class="i-val">R$ 99</div><div class="i-tot">R$ 594</div>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec-head"><div class="dot"></div><span class="sec-title">Sensor de movimento — escada (prioridade)</span></div>
+        <div class="col-h g4"><span class="cl">Produto</span><span class="cl c">Qtd</span><span class="cl r">Unit.</span><span class="cl r">Total</span></div>
+        <div class="item g4">
+          <div><div class="i-name">Sensor de movimento Wi-Fi Tuya/NovaDigital PIR<span class="badge bp">prioridade</span></div><div class="i-spec">Wi-Fi 2.4GHz · Detecção 6m 360° · Alexa/Google · Ativa lâmpada automático</div></div>
+          <div class="i-qty">1</div><div class="i-val">R$ 75</div><div class="i-tot">R$ 75</div>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec-head"><div class="dot"></div><span class="sec-title">Cenas e rotinas</span></div>
+        <div class="item g4" style="grid-template-columns:1fr">
+          <div><div class="i-name">Configuração incluída no serviço INOVA</div><div class="i-spec">Cenas: Cheguei, Boa noite, Receber visita, Acordar, Modo cinema · Configuração via Alexa app + Smart Life</div></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="sum">
+        <div class="srow"><span class="sl">Lâmpadas RGB/CCT (12 un.)</span><span class="sv">R$ 660</span></div>
+        <div class="srow"><span class="sl">Interruptores físicos (6 un.)</span><span class="sv">R$ 594</span></div>
+        <div class="srow"><span class="sl">Sensor de movimento escada</span><span class="sv">R$ 75</span></div>
+        <div class="srow"><span class="sl">Subtotal produtos</span><span class="sv">R$ 1.329</span></div>
+        <div class="srow"><span class="sl">Serviço INOVA (planej. + config.)</span><span class="sv">R$ 600</span></div>
+        <div class="srow"><span class="stot-l">Total estimado</span><span class="stot-v">R$ 1.929</span></div>
+        <p class="note">Qtd de lâmpadas e interruptores estimada. Confirmar na visita técnica. Echo Dot já existente não incluso. Frete não incluso.</p>
+      </div>
+    </div>
+
+    <!-- PAINEL AC SMART -->
+    <div class="panel" id="p-acsmart">
+      <div class="alert"><p><strong>Acréscimo — se o Ryan optar por AC inteligente.</strong> Adicionar ao orçamento base. Controle por voz e app, automação por horário e temperatura.</p></div>
+      <div class="sec">
+        <div class="sec-head"><div class="dot"></div><span class="sec-title">Controle de AC via infravermelho (opção econômica)</span></div>
+        <div class="col-h g4"><span class="cl">Produto</span><span class="cl c">Qtd</span><span class="cl r">Unit.</span><span class="cl r">Total</span></div>
+        <div class="item g4">
+          <div><div class="i-name">Controle universal IR Intelbras IZY Connect<span class="badge bo">opcional</span></div><div class="i-spec">Infravermelho · Wi-Fi · Alexa/Google · Funciona com qualquer AC split · Bivolt</div></div>
+          <div class="i-qty">3</div><div class="i-val">R$ 130</div><div class="i-tot">R$ 390</div>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec-head"><div class="dot"></div><span class="sec-title">AC nativo inteligente (opção premium)</span></div>
+        <div class="item g4" style="grid-template-columns:1fr">
+          <div><div class="i-name">ACs com Wi-Fi nativo (Elgin, Consul, LG ThinQ, Samsung SmartThings)<span class="badge bo">opcional</span></div><div class="i-spec">Depende do modelo escolhido. Preço varia de R$ 1.800 a R$ 3.500 por unidade (12.000 BTUs). Já integram nativamente com Alexa.</div></div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="sum">
+        <div class="srow"><span class="sl">Controle IR (3 ambientes) — opção econômica</span><span class="sv">+ R$ 390</span></div>
+        <div class="srow"><span class="sl">AC inteligente nativo (por unidade) — premium</span><span class="sv">+ R$ 1.800–3.500/un.</span></div>
+        <div class="srow"><span class="stot-l">Orçamento base + controle IR</span><span class="stot-v">R$ 2.319</span></div>
+        <p class="note">Recomendação: controle IR é a solução mais custo-eficiente se ele já tem ACs convencionais. Se for comprar ACs novos, vale analisar modelos smart nativos.</p>
+      </div>
+    </div>
+
+    <!-- PAINEL CORTINAS MOTOR -->
+    <div class="panel" id="p-cortmotor">
+      <div class="alert"><p><strong>Acréscimo — cortinas com motor inteligente.</strong> Motor que encaixa no trilho existente ou novo. Controle por voz, app ou horário. Valor por janela/porta.</p></div>
+      <div class="sec">
+        <div class="sec-head"><div class="dot"></div><span class="sec-title">Motor de trilho de cortina Wi-Fi — por janela</span></div>
+        <div class="col-h g4"><span class="cl">Produto</span><span class="cl c">Qtd</span><span class="cl r">Unit.</span><span class="cl r">Total</span></div>
+        <div class="item g4">
+          <div><div class="i-name">Motor trilho cortina Wi-Fi Tuya + RF 433<span class="badge bo">opcional</span></div><div class="i-spec">Até 12m · 40kg · Alexa/Google · App Smart Life · Bivolt · Plug BR incluso</div></div>
+          <div class="i-qty">1</div><div class="i-val">R$ 349</div><div class="i-tot">R$ 349</div>
+        </div>
+        <div class="item g4 muted-bg">
+          <div><div class="i-name">Kit cortina inteligente completa (trilho + motor + controle)<span class="badge bo">opcional</span></div><div class="i-spec">Até 4,2m · Wi-Fi 2.4GHz + RF · Controle remoto físico incluso · Alexa/Google</div></div>
+          <div class="i-qty">1</div><div class="i-val">R$ 870</div><div class="i-tot">R$ 870</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="sum">
+        <div class="srow"><span class="sl">Motor avulso (por janela) — se já tem trilho</span><span class="sv">R$ 349/jan.</span></div>
+        <div class="srow"><span class="sl">Kit completo com trilho (por janela)</span><span class="sv">R$ 870/jan.</span></div>
+        <div class="srow"><span class="sl">Exemplo: 3 janelas com motor avulso</span><span class="sv">+ R$ 1.047</span></div>
+        <div class="srow"><span class="sl">Exemplo: 3 janelas kit completo</span><span class="sv">+ R$ 2.610</span></div>
+        <div class="srow"><span class="stot-l">Base + 3 motores avulsos (ex.)</span><span class="stot-v">R$ 2.976</span></div>
+        <p class="note">Quantidade final depende do número de janelas. Confirmar na visita. Instalação elétrica (tomada perto da cortina) pode ser necessária.</p>
+      </div>
+    </div>
+
+    <!-- PAINEL PERSIANAS -->
+    <div class="panel" id="p-persiana">
+      <div class="alert"><p><strong>Acréscimo — persianas com motor embutido.</strong> Persiana motorizada de fábrica com Wi-Fi. Mais sofisticado, valor por vão. Pode ser rolo/blackout ou integrada à esquadria.</p></div>
+      <div class="sec">
+        <div class="sec-head"><div class="dot"></div><span class="sec-title">Opções de persiana motorizada — por vão</span></div>
+        <div class="col-h g4"><span class="cl">Produto</span><span class="cl c">Qtd</span><span class="cl r">Unit.</span><span class="cl r">Total</span></div>
+        <div class="item g4">
+          <div><div class="i-name">Módulo mini persiana/cortina Wi-Fi Tuya MS-108<span class="badge bo">opcional</span></div><div class="i-spec">Conecta ao motor existente · Wi-Fi + RF 433 · Alexa/Google · App Smart Life</div></div>
+          <div class="i-qty">1</div><div class="i-val">R$ 60</div><div class="i-tot">R$ 60</div>
+        </div>
+        <div class="item g4 muted-bg">
+          <div><div class="i-name">Persiana rolo blackout motorizada Wi-Fi (sob medida)<span class="badge bo">opcional</span></div><div class="i-spec">Persiana + motor embutido + Wi-Fi · Sob medida · Alexa/Google</div></div>
+          <div class="i-qty">1</div><div class="i-val">R$ 549–800</div><div class="i-tot">R$ 549–800</div>
+        </div>
+        <div class="item g4 muted-bg">
+          <div><div class="i-name">Esquadria com persiana integrada motorizada Wi-Fi<span class="badge bo">opcional</span></div><div class="i-spec">Persiana embutida na esquadria · Motor Wi-Fi/Alexa · Fabricação sob medida</div></div>
+          <div class="i-qty">1</div><div class="i-val">R$ 1.249+</div><div class="i-tot">R$ 1.249+</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="sum">
+        <div class="srow"><span class="sl">Módulo retrofit (motor já existe)</span><span class="sv">R$ 60/jan.</span></div>
+        <div class="srow"><span class="sl">Persiana rolo motorizada (por vão)</span><span class="sv">R$ 549–800/jan.</span></div>
+        <div class="srow"><span class="sl">Esquadria com persiana integrada (por vão)</span><span class="sv">R$ 1.249+/jan.</span></div>
+        <div class="srow"><span class="sl">Exemplo: 3 persianas rolo</span><span class="sv">+ R$ 1.647–2.400</span></div>
+        <div class="srow"><span class="stot-l">Base + 3 persianas rolo (ex.)</span><span class="stot-v">R$ 3.576–4.329</span></div>
+        <p class="note">Valor depende do tamanho do vão e tipo de persiana. Orçar com fornecedor local em Itabuna após definir quantas janelas.</p>
+      </div>
+    </div>
+
+    <!-- PAINEL CÂMERAS -->
+    <div class="panel" id="p-cameras">
+      <div class="alert"><p><strong>Acréscimo — câmeras de segurança.</strong> Dois cenários: câmera interna (sala) e câmera externa (fachada/garagem). Todos integram com Alexa.</p></div>
+      <div class="sec">
+        <div class="sec-head"><div class="dot"></div><span class="sec-title">Câmera interna (sala/corredor)</span></div>
+        <div class="col-h g4"><span class="cl">Produto</span><span class="cl c">Qtd</span><span class="cl r">Unit.</span><span class="cl r">Total</span></div>
+        <div class="item g4">
+          <div><div class="i-name">TP-Link Tapo C200 — interna 360°<span class="badge bg">melhor custo-benef.</span></div><div class="i-spec">Full HD 1080p · Visão noturna 9m · Alexa/Google · Áudio bidirecional · 4,8★</div></div>
+          <div class="i-qty">1</div><div class="i-val">R$ 189</div><div class="i-tot">R$ 189</div>
+        </div>
+        <div class="item g4 muted-bg">
+          <div><div class="i-name">Intelbras iM4 — interna 360°<span class="badge bo">alternativa</span></div><div class="i-spec">Full HD · Visão noturna · Alexa/Google · Função babá eletrônica · App Mibo</div></div>
+          <div class="i-qty">1</div><div class="i-val">R$ 250</div><div class="i-tot">R$ 250</div>
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec-head"><div class="dot"></div><span class="sec-title">Câmera externa (fachada/garagem)</span></div>
+        <div class="col-h g4"><span class="cl">Produto</span><span class="cl c">Qtd</span><span class="cl r">Unit.</span><span class="cl r">Total</span></div>
+        <div class="item g4">
+          <div><div class="i-name">TP-Link Tapo C500 — externa 360°<span class="badge bg">recomendada</span></div><div class="i-spec">Full HD · Visão noturna colorida 30m · IP65 à prova d'água · Alexa/Google · 4,6★</div></div>
+          <div class="i-qty">1</div><div class="i-val">R$ 274</div><div class="i-tot">R$ 274</div>
+        </div>
+        <div class="item g4 muted-bg">
+          <div><div class="i-name">TP-Link Tapo C310 — externa fixa 3MP<span class="badge bo">alternativa</span></div><div class="i-spec">3MP · Visão noturna 30m · IP65 · Alexa/Google · Wi-Fi ou cabo</div></div>
+          <div class="i-qty">1</div><div class="i-val">R$ 220</div><div class="i-tot">R$ 220</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="sum">
+        <div class="srow"><span class="sl">1 câmera interna (Tapo C200)</span><span class="sv">R$ 189</span></div>
+        <div class="srow"><span class="sl">1 câmera externa (Tapo C500)</span><span class="sv">R$ 274</span></div>
+        <div class="srow"><span class="sl">Subtotal câmeras (1 interna + 1 externa)</span><span class="sv">+ R$ 463</span></div>
+        <div class="srow"><span class="stot-l">Base + câmeras</span><span class="stot-v">R$ 2.392</span></div>
+        <p class="note">MicroSD não incluso — recomendado 64GB (~R$ 35). Câmera externa precisa de ponto de energia no local.</p>
+      </div>
+    </div>
+
+    <!-- PAINEL SERVIÇO -->
+    <div class="panel" id="p-servico">
+      <div class="alert"><p><strong>Serviço INOVA — valor sugerido para Itabuna-BA.</strong> Posicionamento como especialista justifica margem justa sem assustar o primeiro cliente.</p></div>
+      <div class="serv-card">
+        <div class="serv-row">
+          <div><div class="serv-name">Levantamento e projeto técnico</div><div class="serv-desc">Visita ao imóvel, mapeamento de ambientes, definição de dispositivos, projeto de automação e lista de materiais final.</div></div>
+          <div class="serv-val">R$ 150</div>
+        </div>
+      </div>
+      <div class="serv-card">
+        <div class="serv-row">
+          <div><div class="serv-name">Configuração e integração de dispositivos</div><div class="serv-desc">Configuração de todas as lâmpadas, sensores e interruptores no app. Criação das cenas (Cheguei, Boa noite, Receber visita, Acordar, Modo cinema). Integração com Alexa.</div></div>
+          <div class="serv-val">R$ 300</div>
+        </div>
+      </div>
+      <div class="serv-card">
+        <div class="serv-row">
+          <div><div class="serv-name">Treinamento e entrega</div><div class="serv-desc">Treinamento com o Ryan para usar o app e a Alexa. Apresentação de cada cena e rotina configurada. Suporte por 30 dias via WhatsApp incluso.</div></div>
+          <div class="serv-val">R$ 150</div>
+        </div>
+      </div>
+      <div class="serv-card" style="border-color:#185FA5">
+        <div class="serv-row">
+          <div><div class="serv-name">Acréscimo — se incluir câmeras</div><div class="serv-desc">Configuração das câmeras no app Tapo, integração com Alexa e ajuste de zonas de detecção.</div></div>
+          <div class="serv-val">+ R$ 80</div>
+        </div>
+      </div>
+      <div class="serv-card" style="border-color:#185FA5">
+        <div class="serv-row">
+          <div><div class="serv-name">Acréscimo — se incluir cortinas/persianas</div><div class="serv-desc">Configuração dos motores, integração com Alexa e cenas de abertura/fechamento automático.</div></div>
+          <div class="serv-val">+ R$ 100</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="sum">
+        <div class="srow"><span class="sl">Serviço base (projeto + config. + entrega)</span><span class="sv">R$ 600</span></div>
+        <div class="srow"><span class="sl">Com câmeras</span><span class="sv">R$ 680</span></div>
+        <div class="srow"><span class="sl">Com câmeras + cortinas/persianas</span><span class="sv">R$ 780</span></div>
+        <div class="srow"><span class="stot-l">Margem sobre produtos (~30–40%)</span><span class="stot-v">inclusa no preço</span></div>
+        <p class="note">Sugestão: compre os produtos por R$ 1.329 e cobre R$ 1.750–1.950 pelos produtos ao cliente (margem ~30%), mais R$ 600 de serviço. Projeto total entre R$ 2.350 e R$ 2.550 — justo para Itabuna e competitivo para o primeiro cliente. Não inclui mão de obra elétrica.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">INOVA Soluções em Tecnologia · Itabuna, BA · inovasolucaotech@gmail.com</div>
+</div>
+
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  document.getElementById('p-' + id).classList.add('on');
+  btn.classList.add('on');
+}
+</script>
+</body>
+</html>
