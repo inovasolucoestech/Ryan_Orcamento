@@ -3,309 +3,634 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Orçamentos Ryan — INOVA Soluções</title>
+<title>Orçamento Interativo — INOVA</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --color-background-primary: #ffffff;
-    --color-background-secondary: #f4f7fb;
-    --color-text-primary: #0d1b3e;
-    --color-text-secondary: #5a6a80;
-    --color-text-tertiary: #8898aa;
-    --color-border-tertiary: rgba(0,0,0,0.12);
-    --color-border-secondary: rgba(0,0,0,0.2);
-    --border-radius-md: 8px;
-    --border-radius-lg: 12px;
-    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: var(--font-sans); background: #f0f4f8; padding: 2rem 1rem; }
-  .container { max-width: 780px; margin: 0 auto; background: #fff; border-radius: 16px; padding: 2rem; box-shadow: 0 2px 16px rgba(0,0,0,0.08); }
-  .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 0.5px solid var(--color-border-tertiary); }
-  .header h1 { font-size: 18px; font-weight: 600; color: #0d1b3e; }
-  .header p { font-size: 12px; color: var(--color-text-secondary); margin-top: 3px; }
-  .logo { font-size: 20px; font-weight: 700; color: #185FA5; letter-spacing: -0.5px; }
-  .wrap { max-width: 740px; }
-  .tabs { display: flex; gap: 6px; margin-bottom: 1.5rem; flex-wrap: wrap; }
-  .tab { padding: 7px 16px; border-radius: 999px; border: 0.5px solid rgba(0,0,0,0.2); font-size: 13px; font-weight: 500; cursor: pointer; color: var(--color-text-secondary); background: transparent; transition: all 0.15s; }
-  .tab.on { background: #185FA5; color: #fff; border-color: #185FA5; }
-  .panel { display: none; } .panel.on { display: block; }
-  .sec { margin-bottom: 1.25rem; }
-  .sec-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-  .dot { width: 8px; height: 8px; border-radius: 50%; background: #185FA5; flex-shrink: 0; }
-  .sec-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
-  .item { display: grid; gap: 6px; align-items: center; padding: 8px 10px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-primary); margin-bottom: 5px; }
-  .item.g4 { grid-template-columns: 1fr 44px 80px 80px; }
-  .item.g3 { grid-template-columns: 1fr 44px 80px; }
-  .i-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
-  .i-spec { font-size: 11px; color: var(--color-text-secondary); margin-top: 1px; }
-  .i-qty { font-size: 13px; color: var(--color-text-secondary); text-align: center; }
-  .i-val { font-size: 13px; color: var(--color-text-secondary); text-align: right; }
-  .i-tot { font-size: 13px; font-weight: 500; color: var(--color-text-primary); text-align: right; }
-  .col-h { display: grid; gap: 6px; padding: 2px 10px 4px; margin-bottom: 2px; }
-  .col-h.g4 { grid-template-columns: 1fr 44px 80px 80px; }
-  .col-h.g3 { grid-template-columns: 1fr 44px 80px; }
-  .cl { font-size: 10px; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; }
-  .cl.r { text-align: right; } .cl.c { text-align: center; }
-  .badge { display: inline-block; font-size: 10px; font-weight: 500; padding: 1px 7px; border-radius: 999px; margin-left: 5px; vertical-align: middle; }
-  .bp { background: #E6F1FB; color: #0C447C; }
-  .bo { background: #FAEEDA; color: #633806; }
-  .bg { background: #EAF3DE; color: #27500A; }
-  .divider { height: 0.5px; background: var(--color-border-tertiary); margin: 1rem 0; }
-  .sum { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-top: 0.5rem; }
-  .srow { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
-  .srow:last-child { border-bottom: none; padding-top: 10px; }
-  .sl { font-size: 13px; color: var(--color-text-secondary); }
-  .sv { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
-  .stot-l { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
-  .stot-v { font-size: 17px; font-weight: 500; color: #185FA5; }
-  .note { font-size: 11px; color: var(--color-text-tertiary); margin-top: 8px; line-height: 1.6; font-style: italic; }
-  .alert { background: #E6F1FB; border-radius: 0; padding: 10px 14px; margin-bottom: 1rem; border-left: 3px solid #185FA5; }
-  .alert p { font-size: 12px; color: #0C447C; line-height: 1.6; }
-  .alert strong { font-weight: 600; }
-  .serv-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 6px; }
-  .serv-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-  .serv-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
-  .serv-desc { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; line-height: 1.5; }
-  .serv-val { font-size: 14px; font-weight: 600; color: #185FA5; white-space: nowrap; }
-  .muted-bg { background: var(--color-background-secondary); }
-  .footer { margin-top: 2rem; padding-top: 1rem; border-top: 0.5px solid var(--color-border-tertiary); font-size: 11px; color: var(--color-text-tertiary); text-align: center; }
+:root {
+  --navy: #0B1628;
+  --blue: #1A6EF5;
+  --blue-light: #3B8BFF;
+  --blue-dim: #1A3A6E;
+  --ice: #E8F1FF;
+  --white: #ffffff;
+  --offwhite: #F5F7FC;
+  --muted: #7A8BAA;
+  --border: rgba(255,255,255,0.08);
+  --border-light: rgba(26,110,245,0.2);
+  --card-bg: rgba(255,255,255,0.04);
+  --card-bg-hover: rgba(26,110,245,0.08);
+  --green: #00D084;
+  --green-dim: #003D26;
+  --amber: #FFAA00;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--navy); color: var(--white); min-height: 100vh; }
+
+.header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+}
+.logo-area { display: flex; align-items: center; gap: 12px; }
+.logo-icon { width: 40px; height: 40px; background: var(--blue); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.logo-icon svg { width: 20px; height: 20px; }
+.logo-text { font-family: 'Syne', sans-serif; font-size: 19px; font-weight: 800; letter-spacing: -0.5px; }
+.logo-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.header-right { text-align: right; }
+.header-client { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600; }
+.header-date { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.layout { display: grid; grid-template-columns: 1fr 320px; min-height: calc(100vh - 77px); }
+.main { padding: 1.75rem 2rem; border-right: 1px solid var(--border); }
+.sidebar { padding: 1.25rem; display: flex; flex-direction: column; gap: 10px; position: sticky; top: 0; height: calc(100vh - 77px); overflow-y: auto; }
+
+.section { margin-bottom: 2rem; }
+.section-label {
+  font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--blue-light);
+  margin-bottom: 0.875rem; display: flex; align-items: center; gap: 8px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border-light); }
+
+.product-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1rem 1.125rem; margin-bottom: 7px;
+  transition: all 0.18s; cursor: default; position: relative; overflow: hidden;
+}
+.product-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: transparent; transition: background 0.2s; }
+.product-card:hover { background: var(--card-bg-hover); border-color: var(--border-light); }
+.product-card.selected { background: rgba(26,110,245,0.1); border-color: var(--blue); }
+.product-card.selected::before { background: var(--blue); }
+
+.badge { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 7px; border-radius: 999px; margin-bottom: 4px; }
+.badge-prio { background: rgba(0,208,132,0.15); color: var(--green); }
+.badge-opt  { background: rgba(255,170,0,0.15);  color: var(--amber); }
+.badge-rec  { background: rgba(26,110,245,0.2);  color: var(--blue-light); }
+
+.card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 10px; }
+.card-info { flex: 1; }
+.card-name { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; color: var(--white); margin-bottom: 3px; line-height: 1.3; }
+.card-spec { font-size: 11px; color: var(--muted); line-height: 1.5; }
+.card-prices { text-align: right; flex-shrink: 0; }
+.price-prod { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--white); }
+.price-svc  { font-size: 11px; color: var(--blue-light); margin-top: 2px; }
+
+.card-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.qty-wrap { display: flex; align-items: center; background: rgba(255,255,255,0.06); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; }
+.qty-btn { width: 28px; height: 28px; background: transparent; border: none; color: var(--white); font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+.qty-btn:hover { background: rgba(26,110,245,0.3); }
+.qty-num { width: 34px; text-align: center; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; color: var(--white); background: transparent; border: none; outline: none; }
+.add-btn { padding: 6px 13px; background: var(--blue); color: var(--white); border: none; border-radius: 7px; font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.add-btn:hover { background: var(--blue-light); }
+.add-btn.added { background: var(--green-dim); color: var(--green); pointer-events: none; }
+.subtotal-pill { font-size: 11px; color: var(--muted); margin-left: auto; }
+.subtotal-pill span { color: var(--white); font-weight: 500; }
+
+/* SIDEBAR */
+.sidebar-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; }
+.cart-empty { text-align: center; padding: 1.75rem 1rem; color: var(--muted); font-size: 12px; border: 1px dashed rgba(255,255,255,0.1); border-radius: 10px; line-height: 1.7; }
+.cart-list { flex: 1; }
+.cart-item { background: var(--card-bg); border: 1px solid var(--border); border-radius: 9px; padding: 9px 11px; margin-bottom: 5px; animation: fi 0.2s ease; }
+@keyframes fi { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)} }
+.ci-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 5px; margin-bottom: 4px; }
+.ci-name { font-size: 12px; font-weight: 500; line-height: 1.3; flex: 1; }
+.ci-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; padding: 0; line-height: 1; }
+.ci-remove:hover { color: #ff5555; }
+.ci-bottom { display: flex; justify-content: space-between; align-items: center; }
+.ci-qty { font-size: 11px; color: var(--muted); }
+.ci-total { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; color: var(--blue-light); }
+
+.totals-box { background: rgba(26,110,245,0.08); border: 1px solid var(--border-light); border-radius: 11px; padding: 0.875rem; }
+.tot-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; }
+.tot-label { font-size: 12px; color: var(--muted); }
+.tot-val { font-size: 13px; font-weight: 500; }
+.tot-div { height: 1px; background: var(--border); margin: 5px 0; }
+.tot-grand-l { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; }
+.tot-grand-v { font-family: 'Syne', sans-serif; font-size: 19px; font-weight: 800; color: var(--blue-light); }
+
+.gen-btn { width: 100%; padding: 13px; background: var(--blue); color: var(--white); border: none; border-radius: 9px; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.18s; letter-spacing: 0.02em; }
+.gen-btn:hover { background: var(--blue-light); transform: translateY(-1px); }
+.gen-btn:disabled { opacity: 0.35; cursor: default; transform: none; }
+
+/* MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(5,12,24,0.92); z-index: 100; align-items: center; justify-content: center; padding: 1rem; }
+.modal-overlay.open { display: flex; }
+.modal { background: #0D1C35; border: 1px solid var(--border-light); border-radius: 16px; width: 100%; max-width: 660px; max-height: 90vh; overflow-y: auto; padding: 1.75rem; animation: mi 0.22s ease; }
+@keyframes mi { from{opacity:0;transform:scale(0.96) translateY(8px)} to{opacity:1;transform:scale(1) translateY(0)} }
+.modal-hd { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; }
+.modal-title { font-family: 'Syne', sans-serif; font-size: 19px; font-weight: 800; }
+.modal-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.modal-x { background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; padding: 0 4px; }
+.modal-x:hover { color: var(--white); }
+
+.orc-banner { display: flex; justify-content: space-between; align-items: center; background: rgba(26,110,245,0.1); border: 1px solid var(--border-light); border-radius: 9px; padding: 0.875rem 1.125rem; margin-bottom: 1.125rem; }
+.orc-cli { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; }
+.orc-meta { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.orc-num { font-family: 'Syne', sans-serif; font-size: 11px; color: var(--blue-light); font-weight: 600; letter-spacing: 0.08em; }
+
+.orc-sec { font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue-light); margin: 1.125rem 0 0.625rem; }
+.orc-tbl { width: 100%; border-collapse: collapse; }
+.orc-tbl th { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); padding: 5px 7px; border-bottom: 1px solid var(--border); text-align: left; }
+.orc-tbl th.r,.orc-tbl td.r { text-align: right; }
+.orc-tbl th.c,.orc-tbl td.c { text-align: center; }
+.orc-tbl td { font-size: 12px; color: var(--white); padding: 7px 7px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.orc-tbl tr:last-child td { border-bottom: none; }
+.td-name { font-weight: 500; }
+.td-m { color: var(--muted); }
+
+.orc-tots { margin-top: 1.125rem; background: rgba(26,110,245,0.08); border: 1px solid var(--border-light); border-radius: 9px; padding: 0.875rem 1.125rem; }
+.ot-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 12px; }
+.ot-row .l { color: var(--muted); }
+.ot-row .v { color: var(--white); font-weight: 500; }
+.ot-grand { display: flex; justify-content: space-between; padding-top: 9px; margin-top: 5px; border-top: 1px solid var(--border); }
+.ot-grand .l { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; }
+.ot-grand .v { font-family: 'Syne', sans-serif; font-size: 19px; font-weight: 800; color: var(--blue-light); }
+
+.orc-note { font-size: 11px; color: var(--muted); margin-top: 0.875rem; line-height: 1.6; font-style: italic; text-align: center; }
+.orc-acts { display: flex; gap: 8px; margin-top: 1.125rem; }
+.orc-acts button { flex: 1; padding: 11px; border-radius: 8px; font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; border: none; transition: background 0.15s; }
+.btn-print { background: var(--blue); color: var(--white); }
+.btn-print:hover { background: var(--blue-light); }
+.btn-cls { background: rgba(255,255,255,0.06); color: var(--white); border: 1px solid var(--border) !important; }
+.btn-cls:hover { background: rgba(255,255,255,0.1); }
+
+@media (max-width: 720px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; }
+  .main { padding: 1rem; }
+  .header { padding: 1rem; }
+}
+@media print {
+  body { background: #fff; color: #000; }
+  .modal-overlay { display: flex !important; position: static; background: #fff; padding: 0; }
+  .modal { background: #fff; color: #000; border: none; max-height: none; padding: 1rem; }
+  .modal-title,.modal-sub,.orc-cli,.orc-meta,.orc-num,.orc-sec,.td-name,.ot-grand .l { color: #000 !important; }
+  .orc-tbl th,.orc-tbl td,.ot-row .l,.ot-row .v { color: #333 !important; }
+  .ot-grand .v { color: #1A6EF5 !important; }
+  .orc-note { color: #666 !important; }
+  .orc-acts, .modal-x, .header, .main, .sidebar { display: none !important; }
+  .modal-overlay { align-items: flex-start; justify-content: flex-start; }
+}
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
+
+<div class="header">
+  <div class="logo-area">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.5-1.3 4.7-3.3 6H8.3A7 7 0 0 1 12 2z"/></svg>
+    </div>
     <div>
-      <h1>Orçamentos — Ryan</h1>
-      <p>Projeto de automação residencial · Itabuna, BA</p>
+      <div class="logo-text">INOVA <span style="font-weight:400;color:var(--muted);font-size:14px">soluções</span></div>
+      <div class="logo-sub">Orçamento interativo</div>
     </div>
-    <div class="logo">INOVA</div>
+  </div>
+  <div class="header-right">
+    <div class="header-client">Cliente: Ryan</div>
+    <div class="header-date">Itabuna, BA · <span id="today"></span></div>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="main">
+
+    <div class="section">
+      <div class="section-label">Assistente de voz</div>
+      <div class="product-card" data-id="echo" data-name="Amazon Echo Dot 5ª geração" data-cat="Assistente de voz" data-product="280" data-service="50">
+        <div class="badge badge-rec">recomendado</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Amazon Echo Dot 5ª geração</div>
+            <div class="card-spec">Smart speaker com Alexa · Wi-Fi dual band · Bivolt · Hub central de automação</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 280</div><div class="price-svc">+ R$ 50 serviço/un.</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 330</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Iluminação inteligente RGB/CCT — luz quente, fria e colorida</div>
+
+      <div class="product-card" data-id="lamp" data-name="Lâmpada Elgin Smart Color 10W (RGB+CCT)" data-cat="Iluminação" data-product="55" data-service="15">
+        <div class="badge badge-prio">prioridade</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Lâmpada Elgin Smart Color 10W</div>
+            <div class="card-spec">RGB+CCT · Wi-Fi 2.4GHz · Alexa/Google · E27 · Bivolt · ~800 lúmens · Luz quente/fria/colorida</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 55</div><div class="price-svc">+ R$ 15 serviço/un.</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 70</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="sw1" data-name="Interruptor Intelbras EWS 101 — 1 tecla" data-cat="Iluminação" data-product="99" data-service="30">
+        <div class="badge badge-prio">prioridade</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Interruptor Intelbras EWS 101 — 1 tecla</div>
+            <div class="card-spec">Touch · Wi-Fi 2.4GHz · Alexa/Google · App Izy Smart · 4×2 · Bivolt</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 99</div><div class="price-svc">+ R$ 30 serviço/un.</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 129</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="sw2" data-name="Interruptor Intelbras EWS 1002 — 2 teclas" data-cat="Iluminação" data-product="140" data-service="30">
+        <div class="badge badge-prio">prioridade</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Interruptor Intelbras EWS 1002 — 2 teclas</div>
+            <div class="card-spec">Touch · Wi-Fi 2.4GHz · Alexa/Google · App Izy Smart · 4×2 · Bivolt</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 140</div><div class="price-svc">+ R$ 30 serviço/un.</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 170</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="sw3" data-name="Interruptor Intelbras EWS 1003 — 3 teclas" data-cat="Iluminação" data-product="165" data-service="30">
+        <div class="badge badge-prio">prioridade</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Interruptor Intelbras EWS 1003 — 3 teclas</div>
+            <div class="card-spec">Touch · Wi-Fi 2.4GHz · Alexa/Google · App Izy Smart · 4×2 · Bivolt</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 165</div><div class="price-svc">+ R$ 30 serviço/un.</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 195</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Sensor de movimento — escada (prioridade)</div>
+      <div class="product-card" data-id="pir" data-name="Sensor de movimento Wi-Fi Tuya PIR" data-cat="Sensores" data-product="75" data-service="60">
+        <div class="badge badge-prio">prioridade</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Sensor de movimento Wi-Fi Tuya / NovaDigital PIR</div>
+            <div class="card-spec">Wi-Fi 2.4GHz · Detecção 6m 360° · Alexa/Google · Ativa lâmpada automaticamente · App Smart Life</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 75</div><div class="price-svc">+ R$ 60 serviço/un.</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 135</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Sensores de abertura — portas e janelas</div>
+      <div class="product-card" data-id="door" data-name="Sensor de abertura Wi-Fi Tuya / Smart Life" data-cat="Sensores" data-product="65" data-service="35">
+        <div class="badge badge-opt">opcional</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Sensor de abertura Wi-Fi Tuya / Smart Life</div>
+            <div class="card-spec">Porta ou janela · Wi-Fi 2.4GHz · Alexa/Google · Notificação no celular · Bateria CR2032</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 65</div><div class="price-svc">+ R$ 35 serviço/un.</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 100</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Controle de ar-condicionado</div>
+      <div class="product-card" data-id="ac" data-name="Controle IR universal Intelbras IZY Connect" data-cat="Ar-condicionado" data-product="130" data-service="80">
+        <div class="badge badge-opt">opcional</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Controle IR universal Intelbras IZY Connect</div>
+            <div class="card-spec">Infravermelho · Wi-Fi 2.4GHz · Alexa/Google · Funciona com qualquer AC split · App Izy Smart</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 130</div><div class="price-svc">+ R$ 80 serviço/un.</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 210</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Cortinas e persianas motorizadas</div>
+
+      <div class="product-card" data-id="curt-motor" data-name="Motor trilho cortina Wi-Fi Tuya + RF 433" data-cat="Cortinas / Persianas" data-product="349" data-service="150">
+        <div class="badge badge-opt">opcional</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Motor trilho cortina Wi-Fi Tuya + RF 433</div>
+            <div class="card-spec">Até 12m · 40kg · Alexa/Google · App Smart Life · Bivolt · Instala em trilho existente</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 349</div><div class="price-svc">+ R$ 150 serviço/un.</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 499</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="curt-kit" data-name="Kit cortina inteligente completa (trilho + motor + controle)" data-cat="Cortinas / Persianas" data-product="870" data-service="180">
+        <div class="badge badge-opt">opcional</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Kit cortina inteligente completa (trilho + motor + controle)</div>
+            <div class="card-spec">Até 4,2m · Wi-Fi 2.4GHz + RF · Controle remoto físico incluso · Alexa/Google · Kit completo</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 870</div><div class="price-svc">+ R$ 180 serviço/un.</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 1.050</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="blind" data-name="Persiana rolo blackout motorizada Wi-Fi (por vão, sob medida)" data-cat="Cortinas / Persianas" data-product="680" data-service="180">
+        <div class="badge badge-opt">opcional</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Persiana rolo blackout motorizada Wi-Fi (por vão)</div>
+            <div class="card-spec">Persiana + motor embutido + Wi-Fi · Sob medida · Alexa/Google · Blackout total · Estimativa por vão</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 680</div><div class="price-svc">+ R$ 180 serviço/un.</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 860</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Câmeras de segurança</div>
+
+      <div class="product-card" data-id="cam-c200" data-name="TP-Link Tapo C200 — câmera interna 360°" data-cat="Câmeras" data-product="189" data-service="100">
+        <div class="badge badge-rec">recomendado</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">TP-Link Tapo C200 — interna 360°</div>
+            <div class="card-spec">Full HD 1080p · Visão noturna 9m · Alexa/Google · Áudio bidirecional · App Tapo · 4,8★</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 189</div><div class="price-svc">+ R$ 100 serviço/un.</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 289</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="cam-im4" data-name="Intelbras iM4 — câmera interna 360°" data-cat="Câmeras" data-product="250" data-service="100">
+        <div class="badge badge-opt">opcional</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Intelbras iM4 — interna 360°</div>
+            <div class="card-spec">Full HD · Visão noturna · Alexa/Google · Babá eletrônica · App Mibo · Suporte nacional</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 250</div><div class="price-svc">+ R$ 100 serviço/un.</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 350</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="cam-c500" data-name="TP-Link Tapo C500 — câmera externa 360°" data-cat="Câmeras" data-product="274" data-service="120">
+        <div class="badge badge-rec">recomendado</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">TP-Link Tapo C500 — externa 360°</div>
+            <div class="card-spec">Full HD · Visão noturna colorida 30m · IP65 à prova d'água · Alexa/Google · Fachada / garagem</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 274</div><div class="price-svc">+ R$ 120 serviço/un.</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 394</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="cam-c310" data-name="TP-Link Tapo C310 — câmera externa fixa 3MP" data-cat="Câmeras" data-product="220" data-service="120">
+        <div class="badge badge-opt">opcional</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">TP-Link Tapo C310 — externa fixa 3MP</div>
+            <div class="card-spec">3MP · Visão noturna 30m · IP65 · Alexa/Google · Wi-Fi ou cabo · Boa cobertura de área</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 220</div><div class="price-svc">+ R$ 120 serviço/un.</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 340</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Serviços fixos INOVA</div>
+
+      <div class="product-card" data-id="svc-visita" data-name="Visita técnica e elaboração de projeto" data-cat="Serviço INOVA" data-product="0" data-service="300">
+        <div class="badge badge-prio">obrigatório</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Visita técnica e elaboração de projeto</div>
+            <div class="card-spec">Levantamento presencial · Mapeamento de ambientes · Projeto técnico completo com lista de materiais final</div>
+          </div>
+          <div class="card-prices"><div class="price-prod" style="font-size:11px;color:var(--muted)">serviço puro</div><div class="price-svc" style="font-size:15px;font-weight:700;color:var(--white)">R$ 300</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap" style="opacity:0.3;pointer-events:none"><button class="qty-btn">−</button><input class="qty-num" value="1" readonly><button class="qty-btn">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 300</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="svc-cenas" data-name="Configuração de cenas e rotinas — Alexa" data-cat="Serviço INOVA" data-product="0" data-service="500">
+        <div class="badge badge-prio">obrigatório</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Configuração de cenas e rotinas — Alexa</div>
+            <div class="card-spec">Cheguei · Boa noite · Receber visita · Acordar · Modo cinema · Desligar tudo · Integração completa Alexa + Smart Life</div>
+          </div>
+          <div class="card-prices"><div class="price-prod" style="font-size:11px;color:var(--muted)">serviço puro</div><div class="price-svc" style="font-size:15px;font-weight:700;color:var(--white)">R$ 500</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap" style="opacity:0.3;pointer-events:none"><button class="qty-btn">−</button><input class="qty-num" value="1" readonly><button class="qty-btn">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 500</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="svc-entrega" data-name="Treinamento, entrega e suporte 30 dias" data-cat="Serviço INOVA" data-product="0" data-service="350">
+        <div class="badge badge-prio">obrigatório</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Treinamento, entrega e suporte 30 dias</div>
+            <div class="card-spec">Treinamento presencial com o cliente · Apresentação de todas as cenas · Suporte via WhatsApp por 30 dias</div>
+          </div>
+          <div class="card-prices"><div class="price-prod" style="font-size:11px;color:var(--muted)">serviço puro</div><div class="price-svc" style="font-size:15px;font-weight:700;color:var(--white)">R$ 350</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap" style="opacity:0.3;pointer-events:none"><button class="qty-btn">−</button><input class="qty-num" value="1" readonly><button class="qty-btn">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 350</span></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <div class="wrap">
-    <div class="tabs">
-      <button class="tab on" onclick="show('base', this)">Orç. base — sem AC smart</button>
-      <button class="tab" onclick="show('acsmart', this)">+ AC inteligente</button>
-      <button class="tab" onclick="show('cortmotor', this)">+ Cortinas motorizadas</button>
-      <button class="tab" onclick="show('persiana', this)">+ Persianas motorizadas</button>
-      <button class="tab" onclick="show('cameras', this)">+ Câmeras</button>
-      <button class="tab" onclick="show('servico', this)">Serviço INOVA</button>
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-title">Itens selecionados</div>
+    <div id="cart-list" style="flex:1">
+      <div class="cart-empty">Nenhum item adicionado ainda.<br>Selecione produtos ao lado.</div>
     </div>
-
-    <!-- PAINEL BASE -->
-    <div class="panel on" id="p-base">
-      <div class="alert"><p><strong>Orçamento base — prioridades confirmadas.</strong> Iluminação RGB/CCT em toda a casa, sensor de movimento para a escada, Echo Dot já existente (não incluído). AC não inteligente, janelas/persianas e câmeras não incluídos aqui.</p></div>
-      <div class="sec">
-        <div class="sec-head"><div class="dot"></div><span class="sec-title">Iluminação inteligente RGB/CCT — toda a casa</span></div>
-        <div class="col-h g4"><span class="cl">Produto</span><span class="cl c">Qtd</span><span class="cl r">Unit.</span><span class="cl r">Total</span></div>
-        <div class="item g4">
-          <div><div class="i-name">Lâmpada inteligente Elgin Smart Color 10W<span class="badge bp">prioridade</span></div><div class="i-spec">RGB+CCT · Wi-Fi 2.4GHz · Alexa/Google · E27 · Bivolt · ~800 lúmens</div></div>
-          <div class="i-qty">12</div><div class="i-val">R$ 55</div><div class="i-tot">R$ 660</div>
-        </div>
-        <div class="item g4 muted-bg">
-          <div><div class="i-name">Interruptor simples 1 tecla Intelbras EWS 101<span class="badge bo">complemento</span></div><div class="i-spec">Touch · Wi-Fi · Necessário para acender/apagar com botoeira física · Bivolt</div></div>
-          <div class="i-qty">6</div><div class="i-val">R$ 99</div><div class="i-tot">R$ 594</div>
-        </div>
-      </div>
-      <div class="sec">
-        <div class="sec-head"><div class="dot"></div><span class="sec-title">Sensor de movimento — escada (prioridade)</span></div>
-        <div class="col-h g4"><span class="cl">Produto</span><span class="cl c">Qtd</span><span class="cl r">Unit.</span><span class="cl r">Total</span></div>
-        <div class="item g4">
-          <div><div class="i-name">Sensor de movimento Wi-Fi Tuya/NovaDigital PIR<span class="badge bp">prioridade</span></div><div class="i-spec">Wi-Fi 2.4GHz · Detecção 6m 360° · Alexa/Google · Ativa lâmpada automático</div></div>
-          <div class="i-qty">1</div><div class="i-val">R$ 75</div><div class="i-tot">R$ 75</div>
-        </div>
-      </div>
-      <div class="sec">
-        <div class="sec-head"><div class="dot"></div><span class="sec-title">Cenas e rotinas</span></div>
-        <div class="item g4" style="grid-template-columns:1fr">
-          <div><div class="i-name">Configuração incluída no serviço INOVA</div><div class="i-spec">Cenas: Cheguei, Boa noite, Receber visita, Acordar, Modo cinema · Configuração via Alexa app + Smart Life</div></div>
-        </div>
-      </div>
-      <div class="divider"></div>
-      <div class="sum">
-        <div class="srow"><span class="sl">Lâmpadas RGB/CCT (12 un.)</span><span class="sv">R$ 660</span></div>
-        <div class="srow"><span class="sl">Interruptores físicos (6 un.)</span><span class="sv">R$ 594</span></div>
-        <div class="srow"><span class="sl">Sensor de movimento escada</span><span class="sv">R$ 75</span></div>
-        <div class="srow"><span class="sl">Subtotal produtos</span><span class="sv">R$ 1.329</span></div>
-        <div class="srow"><span class="sl">Serviço INOVA (planej. + config.)</span><span class="sv">R$ 600</span></div>
-        <div class="srow"><span class="stot-l">Total estimado</span><span class="stot-v">R$ 1.929</span></div>
-        <p class="note">Qtd de lâmpadas e interruptores estimada. Confirmar na visita técnica. Echo Dot já existente não incluso. Frete não incluso.</p>
-      </div>
+    <div id="totals-box" style="display:none" class="totals-box">
+      <div class="tot-row"><span class="tot-label">Produtos</span><span class="tot-val" id="tot-p">R$ 0</span></div>
+      <div class="tot-row"><span class="tot-label">Serviço INOVA</span><span class="tot-val" id="tot-s">R$ 0</span></div>
+      <div class="tot-div"></div>
+      <div class="tot-row"><span class="tot-grand-l">Total</span><span class="tot-grand-v" id="tot-g">R$ 0</span></div>
     </div>
-
-    <!-- PAINEL AC SMART -->
-    <div class="panel" id="p-acsmart">
-      <div class="alert"><p><strong>Acréscimo — se o Ryan optar por AC inteligente.</strong> Adicionar ao orçamento base. Controle por voz e app, automação por horário e temperatura.</p></div>
-      <div class="sec">
-        <div class="sec-head"><div class="dot"></div><span class="sec-title">Controle de AC via infravermelho (opção econômica)</span></div>
-        <div class="col-h g4"><span class="cl">Produto</span><span class="cl c">Qtd</span><span class="cl r">Unit.</span><span class="cl r">Total</span></div>
-        <div class="item g4">
-          <div><div class="i-name">Controle universal IR Intelbras IZY Connect<span class="badge bo">opcional</span></div><div class="i-spec">Infravermelho · Wi-Fi · Alexa/Google · Funciona com qualquer AC split · Bivolt</div></div>
-          <div class="i-qty">3</div><div class="i-val">R$ 130</div><div class="i-tot">R$ 390</div>
-        </div>
-      </div>
-      <div class="sec">
-        <div class="sec-head"><div class="dot"></div><span class="sec-title">AC nativo inteligente (opção premium)</span></div>
-        <div class="item g4" style="grid-template-columns:1fr">
-          <div><div class="i-name">ACs com Wi-Fi nativo (Elgin, Consul, LG ThinQ, Samsung SmartThings)<span class="badge bo">opcional</span></div><div class="i-spec">Depende do modelo escolhido. Preço varia de R$ 1.800 a R$ 3.500 por unidade (12.000 BTUs). Já integram nativamente com Alexa.</div></div>
-        </div>
-      </div>
-      <div class="divider"></div>
-      <div class="sum">
-        <div class="srow"><span class="sl">Controle IR (3 ambientes) — opção econômica</span><span class="sv">+ R$ 390</span></div>
-        <div class="srow"><span class="sl">AC inteligente nativo (por unidade) — premium</span><span class="sv">+ R$ 1.800–3.500/un.</span></div>
-        <div class="srow"><span class="stot-l">Orçamento base + controle IR</span><span class="stot-v">R$ 2.319</span></div>
-        <p class="note">Recomendação: controle IR é a solução mais custo-eficiente se ele já tem ACs convencionais. Se for comprar ACs novos, vale analisar modelos smart nativos.</p>
-      </div>
-    </div>
-
-    <!-- PAINEL CORTINAS MOTOR -->
-    <div class="panel" id="p-cortmotor">
-      <div class="alert"><p><strong>Acréscimo — cortinas com motor inteligente.</strong> Motor que encaixa no trilho existente ou novo. Controle por voz, app ou horário. Valor por janela/porta.</p></div>
-      <div class="sec">
-        <div class="sec-head"><div class="dot"></div><span class="sec-title">Motor de trilho de cortina Wi-Fi — por janela</span></div>
-        <div class="col-h g4"><span class="cl">Produto</span><span class="cl c">Qtd</span><span class="cl r">Unit.</span><span class="cl r">Total</span></div>
-        <div class="item g4">
-          <div><div class="i-name">Motor trilho cortina Wi-Fi Tuya + RF 433<span class="badge bo">opcional</span></div><div class="i-spec">Até 12m · 40kg · Alexa/Google · App Smart Life · Bivolt · Plug BR incluso</div></div>
-          <div class="i-qty">1</div><div class="i-val">R$ 349</div><div class="i-tot">R$ 349</div>
-        </div>
-        <div class="item g4 muted-bg">
-          <div><div class="i-name">Kit cortina inteligente completa (trilho + motor + controle)<span class="badge bo">opcional</span></div><div class="i-spec">Até 4,2m · Wi-Fi 2.4GHz + RF · Controle remoto físico incluso · Alexa/Google</div></div>
-          <div class="i-qty">1</div><div class="i-val">R$ 870</div><div class="i-tot">R$ 870</div>
-        </div>
-      </div>
-      <div class="divider"></div>
-      <div class="sum">
-        <div class="srow"><span class="sl">Motor avulso (por janela) — se já tem trilho</span><span class="sv">R$ 349/jan.</span></div>
-        <div class="srow"><span class="sl">Kit completo com trilho (por janela)</span><span class="sv">R$ 870/jan.</span></div>
-        <div class="srow"><span class="sl">Exemplo: 3 janelas com motor avulso</span><span class="sv">+ R$ 1.047</span></div>
-        <div class="srow"><span class="sl">Exemplo: 3 janelas kit completo</span><span class="sv">+ R$ 2.610</span></div>
-        <div class="srow"><span class="stot-l">Base + 3 motores avulsos (ex.)</span><span class="stot-v">R$ 2.976</span></div>
-        <p class="note">Quantidade final depende do número de janelas. Confirmar na visita. Instalação elétrica (tomada perto da cortina) pode ser necessária.</p>
-      </div>
-    </div>
-
-    <!-- PAINEL PERSIANAS -->
-    <div class="panel" id="p-persiana">
-      <div class="alert"><p><strong>Acréscimo — persianas com motor embutido.</strong> Persiana motorizada de fábrica com Wi-Fi. Mais sofisticado, valor por vão. Pode ser rolo/blackout ou integrada à esquadria.</p></div>
-      <div class="sec">
-        <div class="sec-head"><div class="dot"></div><span class="sec-title">Opções de persiana motorizada — por vão</span></div>
-        <div class="col-h g4"><span class="cl">Produto</span><span class="cl c">Qtd</span><span class="cl r">Unit.</span><span class="cl r">Total</span></div>
-        <div class="item g4">
-          <div><div class="i-name">Módulo mini persiana/cortina Wi-Fi Tuya MS-108<span class="badge bo">opcional</span></div><div class="i-spec">Conecta ao motor existente · Wi-Fi + RF 433 · Alexa/Google · App Smart Life</div></div>
-          <div class="i-qty">1</div><div class="i-val">R$ 60</div><div class="i-tot">R$ 60</div>
-        </div>
-        <div class="item g4 muted-bg">
-          <div><div class="i-name">Persiana rolo blackout motorizada Wi-Fi (sob medida)<span class="badge bo">opcional</span></div><div class="i-spec">Persiana + motor embutido + Wi-Fi · Sob medida · Alexa/Google</div></div>
-          <div class="i-qty">1</div><div class="i-val">R$ 549–800</div><div class="i-tot">R$ 549–800</div>
-        </div>
-        <div class="item g4 muted-bg">
-          <div><div class="i-name">Esquadria com persiana integrada motorizada Wi-Fi<span class="badge bo">opcional</span></div><div class="i-spec">Persiana embutida na esquadria · Motor Wi-Fi/Alexa · Fabricação sob medida</div></div>
-          <div class="i-qty">1</div><div class="i-val">R$ 1.249+</div><div class="i-tot">R$ 1.249+</div>
-        </div>
-      </div>
-      <div class="divider"></div>
-      <div class="sum">
-        <div class="srow"><span class="sl">Módulo retrofit (motor já existe)</span><span class="sv">R$ 60/jan.</span></div>
-        <div class="srow"><span class="sl">Persiana rolo motorizada (por vão)</span><span class="sv">R$ 549–800/jan.</span></div>
-        <div class="srow"><span class="sl">Esquadria com persiana integrada (por vão)</span><span class="sv">R$ 1.249+/jan.</span></div>
-        <div class="srow"><span class="sl">Exemplo: 3 persianas rolo</span><span class="sv">+ R$ 1.647–2.400</span></div>
-        <div class="srow"><span class="stot-l">Base + 3 persianas rolo (ex.)</span><span class="stot-v">R$ 3.576–4.329</span></div>
-        <p class="note">Valor depende do tamanho do vão e tipo de persiana. Orçar com fornecedor local em Itabuna após definir quantas janelas.</p>
-      </div>
-    </div>
-
-    <!-- PAINEL CÂMERAS -->
-    <div class="panel" id="p-cameras">
-      <div class="alert"><p><strong>Acréscimo — câmeras de segurança.</strong> Dois cenários: câmera interna (sala) e câmera externa (fachada/garagem). Todos integram com Alexa.</p></div>
-      <div class="sec">
-        <div class="sec-head"><div class="dot"></div><span class="sec-title">Câmera interna (sala/corredor)</span></div>
-        <div class="col-h g4"><span class="cl">Produto</span><span class="cl c">Qtd</span><span class="cl r">Unit.</span><span class="cl r">Total</span></div>
-        <div class="item g4">
-          <div><div class="i-name">TP-Link Tapo C200 — interna 360°<span class="badge bg">melhor custo-benef.</span></div><div class="i-spec">Full HD 1080p · Visão noturna 9m · Alexa/Google · Áudio bidirecional · 4,8★</div></div>
-          <div class="i-qty">1</div><div class="i-val">R$ 189</div><div class="i-tot">R$ 189</div>
-        </div>
-        <div class="item g4 muted-bg">
-          <div><div class="i-name">Intelbras iM4 — interna 360°<span class="badge bo">alternativa</span></div><div class="i-spec">Full HD · Visão noturna · Alexa/Google · Função babá eletrônica · App Mibo</div></div>
-          <div class="i-qty">1</div><div class="i-val">R$ 250</div><div class="i-tot">R$ 250</div>
-        </div>
-      </div>
-      <div class="sec">
-        <div class="sec-head"><div class="dot"></div><span class="sec-title">Câmera externa (fachada/garagem)</span></div>
-        <div class="col-h g4"><span class="cl">Produto</span><span class="cl c">Qtd</span><span class="cl r">Unit.</span><span class="cl r">Total</span></div>
-        <div class="item g4">
-          <div><div class="i-name">TP-Link Tapo C500 — externa 360°<span class="badge bg">recomendada</span></div><div class="i-spec">Full HD · Visão noturna colorida 30m · IP65 à prova d'água · Alexa/Google · 4,6★</div></div>
-          <div class="i-qty">1</div><div class="i-val">R$ 274</div><div class="i-tot">R$ 274</div>
-        </div>
-        <div class="item g4 muted-bg">
-          <div><div class="i-name">TP-Link Tapo C310 — externa fixa 3MP<span class="badge bo">alternativa</span></div><div class="i-spec">3MP · Visão noturna 30m · IP65 · Alexa/Google · Wi-Fi ou cabo</div></div>
-          <div class="i-qty">1</div><div class="i-val">R$ 220</div><div class="i-tot">R$ 220</div>
-        </div>
-      </div>
-      <div class="divider"></div>
-      <div class="sum">
-        <div class="srow"><span class="sl">1 câmera interna (Tapo C200)</span><span class="sv">R$ 189</span></div>
-        <div class="srow"><span class="sl">1 câmera externa (Tapo C500)</span><span class="sv">R$ 274</span></div>
-        <div class="srow"><span class="sl">Subtotal câmeras (1 interna + 1 externa)</span><span class="sv">+ R$ 463</span></div>
-        <div class="srow"><span class="stot-l">Base + câmeras</span><span class="stot-v">R$ 2.392</span></div>
-        <p class="note">MicroSD não incluso — recomendado 64GB (~R$ 35). Câmera externa precisa de ponto de energia no local.</p>
-      </div>
-    </div>
-
-    <!-- PAINEL SERVIÇO -->
-    <div class="panel" id="p-servico">
-      <div class="alert"><p><strong>Serviço INOVA — valor sugerido para Itabuna-BA.</strong> Posicionamento como especialista justifica margem justa sem assustar o primeiro cliente.</p></div>
-      <div class="serv-card">
-        <div class="serv-row">
-          <div><div class="serv-name">Levantamento e projeto técnico</div><div class="serv-desc">Visita ao imóvel, mapeamento de ambientes, definição de dispositivos, projeto de automação e lista de materiais final.</div></div>
-          <div class="serv-val">R$ 150</div>
-        </div>
-      </div>
-      <div class="serv-card">
-        <div class="serv-row">
-          <div><div class="serv-name">Configuração e integração de dispositivos</div><div class="serv-desc">Configuração de todas as lâmpadas, sensores e interruptores no app. Criação das cenas (Cheguei, Boa noite, Receber visita, Acordar, Modo cinema). Integração com Alexa.</div></div>
-          <div class="serv-val">R$ 300</div>
-        </div>
-      </div>
-      <div class="serv-card">
-        <div class="serv-row">
-          <div><div class="serv-name">Treinamento e entrega</div><div class="serv-desc">Treinamento com o Ryan para usar o app e a Alexa. Apresentação de cada cena e rotina configurada. Suporte por 30 dias via WhatsApp incluso.</div></div>
-          <div class="serv-val">R$ 150</div>
-        </div>
-      </div>
-      <div class="serv-card" style="border-color:#185FA5">
-        <div class="serv-row">
-          <div><div class="serv-name">Acréscimo — se incluir câmeras</div><div class="serv-desc">Configuração das câmeras no app Tapo, integração com Alexa e ajuste de zonas de detecção.</div></div>
-          <div class="serv-val">+ R$ 80</div>
-        </div>
-      </div>
-      <div class="serv-card" style="border-color:#185FA5">
-        <div class="serv-row">
-          <div><div class="serv-name">Acréscimo — se incluir cortinas/persianas</div><div class="serv-desc">Configuração dos motores, integração com Alexa e cenas de abertura/fechamento automático.</div></div>
-          <div class="serv-val">+ R$ 100</div>
-        </div>
-      </div>
-      <div class="divider"></div>
-      <div class="sum">
-        <div class="srow"><span class="sl">Serviço base (projeto + config. + entrega)</span><span class="sv">R$ 600</span></div>
-        <div class="srow"><span class="sl">Com câmeras</span><span class="sv">R$ 680</span></div>
-        <div class="srow"><span class="sl">Com câmeras + cortinas/persianas</span><span class="sv">R$ 780</span></div>
-        <div class="srow"><span class="stot-l">Margem sobre produtos (~30–40%)</span><span class="stot-v">inclusa no preço</span></div>
-        <p class="note">Sugestão: compre os produtos por R$ 1.329 e cobre R$ 1.750–1.950 pelos produtos ao cliente (margem ~30%), mais R$ 600 de serviço. Projeto total entre R$ 2.350 e R$ 2.550 — justo para Itabuna e competitivo para o primeiro cliente. Não inclui mão de obra elétrica.</p>
-      </div>
-    </div>
-
+    <button class="gen-btn" id="gen-btn" disabled onclick="openModal()">Gerar orçamento final</button>
   </div>
+</div>
 
-  <div class="footer">INOVA Soluções em Tecnologia · Itabuna, BA · inovasolucaotech@gmail.com</div>
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-hd">
+      <div><div class="modal-title">Orçamento Final</div><div class="modal-sub">INOVA Soluções em Tecnologia · Itabuna, BA</div></div>
+      <button class="modal-x" onclick="closeModal()">×</button>
+    </div>
+    <div class="orc-banner">
+      <div><div class="orc-cli">Ryan</div><div class="orc-meta">Casa · Itabuna, BA — Bairro Boa Vista</div></div>
+      <div style="text-align:right"><div class="orc-num" id="orc-num"></div><div class="orc-meta" id="orc-date" style="margin-top:4px"></div></div>
+    </div>
+    <div id="modal-body"></div>
+    <div class="orc-note">Orçamento válido por 15 dias · Não inclui mão de obra elétrica · Frete não incluso · Valores sujeitos a disponibilidade</div>
+    <div class="orc-acts">
+      <button class="btn-print" onclick="window.print()">Imprimir / Salvar PDF</button>
+      <button class="btn-cls" onclick="closeModal()">Fechar</button>
+    </div>
+  </div>
 </div>
 
 <script>
-function show(id, btn) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
-  document.getElementById('p-' + id).classList.add('on');
-  btn.classList.add('on');
+const cart = {};
+document.getElementById('today').textContent = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+
+const fmt = v => 'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
+
+function getCard(el){ return el.closest('.product-card'); }
+
+function updSub(card){
+  const qty = parseInt(card.querySelector('.qty-num').value)||1;
+  const p = parseInt(card.dataset.product)||0;
+  const s = parseInt(card.dataset.service)||0;
+  card.querySelector('.subtotal-pill span').textContent = fmt((p+s)*qty);
 }
+
+function chQty(btn, dir){
+  const card = getCard(btn);
+  const inp = card.querySelector('.qty-num');
+  let v = Math.max(1, Math.min(50, (parseInt(inp.value)||1)+dir));
+  inp.value = v;
+  updSub(card);
+  if(cart[card.dataset.id]){ cart[card.dataset.id].qty = v; renderCart(); }
+}
+
+function addItem(btn){
+  const card = getCard(btn);
+  const id = card.dataset.id;
+  const qty = parseInt(card.querySelector('.qty-num').value)||1;
+  cart[id] = { id, name:card.dataset.name, cat:card.dataset.cat, qty, p:parseInt(card.dataset.product)||0, s:parseInt(card.dataset.service)||0 };
+  card.classList.add('selected');
+  btn.textContent = '✓ Adicionado'; btn.classList.add('added');
+  renderCart();
+}
+
+function removeItem(id){
+  delete cart[id];
+  const card = document.querySelector(`[data-id="${id}"]`);
+  if(card){ card.classList.remove('selected'); const b=card.querySelector('.add-btn'); b.textContent='Adicionar'; b.classList.remove('added'); }
+  renderCart();
+}
+
+function renderCart(){
+  const keys = Object.keys(cart);
+  let totP=0, totS=0, html='';
+  keys.forEach(id=>{
+    const it=cart[id];
+    totP+=it.p*it.qty; totS+=it.s*it.qty;
+    html+=`<div class="cart-item"><div class="ci-top"><div class="ci-name">${it.name}</div><button class="ci-remove" onclick="removeItem('${id}')">×</button></div><div class="ci-bottom"><span class="ci-qty">${it.qty}× · ${it.cat}</span><span class="ci-total">${fmt((it.p+it.s)*it.qty)}</span></div></div>`;
+  });
+  const cl = document.getElementById('cart-list');
+  const tb = document.getElementById('totals-box');
+  const gb = document.getElementById('gen-btn');
+  if(!keys.length){
+    cl.innerHTML='<div class="cart-empty">Nenhum item adicionado ainda.<br>Selecione produtos ao lado.</div>';
+    tb.style.display='none'; gb.disabled=true;
+  } else {
+    cl.innerHTML=html; tb.style.display='block'; gb.disabled=false;
+    document.getElementById('tot-p').textContent=fmt(totP);
+    document.getElementById('tot-s').textContent=fmt(totS);
+    document.getElementById('tot-g').textContent=fmt(totP+totS);
+  }
+}
+
+function openModal(){
+  const keys=Object.keys(cart); if(!keys.length)return;
+  const cats={}; let totP=0,totS=0;
+  keys.forEach(id=>{ const it=cart[id]; if(!cats[it.cat])cats[it.cat]=[]; cats[it.cat].push(it); totP+=it.p*it.qty; totS+=it.s*it.qty; });
+  let html='';
+  Object.entries(cats).forEach(([cat,items])=>{
+    html+=`<div class="orc-sec">${cat}</div><table class="orc-tbl"><thead><tr><th>Produto / Serviço</th><th class="c">Qtd</th><th class="r">Produto</th><th class="r">Serviço</th><th class="r">Total</th></tr></thead><tbody>`;
+    items.forEach(it=>{ html+=`<tr><td class="td-name">${it.name}</td><td class="c td-m">${it.qty}</td><td class="r td-m">${it.p>0?fmt(it.p):'—'}</td><td class="r td-m">${fmt(it.s)}</td><td class="r" style="font-weight:500">${fmt((it.p+it.s)*it.qty)}</td></tr>`; });
+    html+=`</tbody></table>`;
+  });
+  html+=`<div class="orc-tots"><div class="ot-row"><span class="l">Subtotal produtos</span><span class="v">${fmt(totP)}</span></div><div class="ot-row"><span class="l">Subtotal serviço INOVA</span><span class="v">${fmt(totS)}</span></div><div class="ot-grand"><span class="l">Total do projeto</span><span class="v">${fmt(totP+totS)}</span></div></div>`;
+  document.getElementById('modal-body').innerHTML=html;
+  document.getElementById('orc-num').textContent='ORC-'+new Date().getFullYear()+'-'+String(Math.floor(Math.random()*900)+100);
+  document.getElementById('orc-date').textContent=new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+document.querySelectorAll('.product-card').forEach(updSub);
 </script>
 </body>
 </html>
