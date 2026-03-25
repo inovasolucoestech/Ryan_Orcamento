@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orçamento Interativo — INOVA</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0B1628;
+  --blue: #1A6EF5;
+  --blue-light: #3B8BFF;
+  --blue-dim: #1A3A6E;
+  --ice: #E8F1FF;
+  --white: #ffffff;
+  --offwhite: #F5F7FC;
+  --muted: #7A8BAA;
+  --border: rgba(255,255,255,0.08);
+  --border-light: rgba(26,110,245,0.2);
+  --card-bg: rgba(255,255,255,0.04);
+  --card-bg-hover: rgba(26,110,245,0.08);
+  --green: #00D084;
+  --green-dim: #003D26;
+  --amber: #FFAA00;
+  --purple: #9D4EDD;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'DM Sans', sans-serif; background: var(--navy); color: var(--white); min-height: 100vh; }
+
+.header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+}
+.logo-area { display: flex; align-items: center; gap: 12px; }
+.logo-icon { width: 40px; height: 40px; background: var(--blue); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+.logo-icon svg { width: 20px; height: 20px; }
+.logo-text { font-family: 'Syne', sans-serif; font-size: 19px; font-weight: 800; letter-spacing: -0.5px; }
+.logo-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.header-right { text-align: right; }
+.header-client { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600; }
+.header-date { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+.layout { display: grid; grid-template-columns: 1fr 320px; min-height: calc(100vh - 77px); }
+.main { padding: 1.75rem 2rem; border-right: 1px solid var(--border); }
+.sidebar { padding: 1.25rem; display: flex; flex-direction: column; gap: 10px; position: sticky; top: 0; height: calc(100vh - 77px); overflow-y: auto; }
+
+.section { margin-bottom: 2rem; }
+.section-label {
+  font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--blue-light);
+  margin-bottom: 0.875rem; display: flex; align-items: center; gap: 8px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border-light); }
+
+.product-card {
+  background: var(--card-bg); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1rem 1.125rem; margin-bottom: 7px;
+  transition: all 0.18s; cursor: default; position: relative; overflow: hidden;
+}
+.product-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: transparent; transition: background 0.2s; }
+.product-card:hover { background: var(--card-bg-hover); border-color: var(--border-light); }
+.product-card.selected { background: rgba(26,110,245,0.1); border-color: var(--blue); }
+.product-card.selected::before { background: var(--blue); }
+
+.badge { display: inline-block; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 7px; border-radius: 999px; margin-bottom: 4px; }
+.badge-prio { background: rgba(0,208,132,0.15); color: var(--green); }
+.badge-opt  { background: rgba(255,170,0,0.15);  color: var(--amber); }
+.badge-rec  { background: rgba(26,110,245,0.2);  color: var(--blue-light); }
+.badge-cena { background: rgba(157,78,221,0.15); color: var(--purple); }
+
+.card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 10px; }
+.card-info { flex: 1; }
+.card-name { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; color: var(--white); margin-bottom: 3px; line-height: 1.3; }
+.card-spec { font-size: 11px; color: var(--muted); line-height: 1.5; }
+.card-prices { text-align: right; flex-shrink: 0; }
+.price-prod { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; color: var(--white); }
+.price-svc  { font-size: 11px; color: var(--blue-light); margin-top: 2px; }
+
+.card-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.qty-wrap { display: flex; align-items: center; background: rgba(255,255,255,0.06); border-radius: 8px; border: 1px solid var(--border); overflow: hidden; }
+.qty-btn { width: 28px; height: 28px; background: transparent; border: none; color: var(--white); font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+.qty-btn:hover { background: rgba(26,110,245,0.3); }
+.qty-num { width: 34px; text-align: center; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; color: var(--white); background: transparent; border: none; outline: none; }
+.add-btn { padding: 6px 13px; background: var(--blue); color: var(--white); border: none; border-radius: 7px; font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+.add-btn:hover { background: var(--blue-light); }
+.add-btn.added { background: var(--green-dim); color: var(--green); pointer-events: none; }
+.subtotal-pill { font-size: 11px; color: var(--muted); margin-left: auto; }
+.subtotal-pill span { color: var(--white); font-weight: 500; }
+
+/* CUSTOM SCENE INPUT */
+.custom-scene-wrap { display: flex; gap: 8px; margin-top: 10px; background: var(--card-bg); padding: 10px; border-radius: 12px; border: 1px dashed var(--border); }
+.custom-scene-input { flex: 1; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--white); padding: 8px 12px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; transition: border-color 0.2s; }
+.custom-scene-input:focus { border-color: var(--blue-light); }
+.custom-scene-btn { background: var(--border-light); color: var(--blue-light); border: none; padding: 8px 16px; border-radius: 8px; font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+.custom-scene-btn:hover { background: var(--blue); color: var(--white); }
+
+/* SIDEBAR */
+.sidebar-title { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; }
+.cart-empty { text-align: center; padding: 1.75rem 1rem; color: var(--muted); font-size: 12px; border: 1px dashed rgba(255,255,255,0.1); border-radius: 10px; line-height: 1.7; }
+.cart-list { flex: 1; }
+.cart-item { background: var(--card-bg); border: 1px solid var(--border); border-radius: 9px; padding: 9px 11px; margin-bottom: 5px; animation: fi 0.2s ease; }
+@keyframes fi { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)} }
+.ci-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 5px; margin-bottom: 4px; }
+.ci-name { font-size: 12px; font-weight: 500; line-height: 1.3; flex: 1; }
+.ci-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; padding: 0; line-height: 1; }
+.ci-remove:hover { color: #ff5555; }
+.ci-bottom { display: flex; justify-content: space-between; align-items: center; }
+.ci-qty { font-size: 11px; color: var(--muted); }
+.ci-total { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 600; color: var(--blue-light); }
+
+.totals-box { background: rgba(26,110,245,0.08); border: 1px solid var(--border-light); border-radius: 11px; padding: 0.875rem; }
+.tot-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; }
+.tot-label { font-size: 12px; color: var(--muted); }
+.tot-val { font-size: 13px; font-weight: 500; }
+.tot-div { height: 1px; background: var(--border); margin: 5px 0; }
+.tot-grand-l { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; }
+.tot-grand-v { font-family: 'Syne', sans-serif; font-size: 19px; font-weight: 800; color: var(--blue-light); }
+
+.gen-btn { width: 100%; padding: 13px; background: var(--blue); color: var(--white); border: none; border-radius: 9px; font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.18s; letter-spacing: 0.02em; }
+.gen-btn:hover { background: var(--blue-light); transform: translateY(-1px); }
+.gen-btn:disabled { opacity: 0.35; cursor: default; transform: none; }
+
+/* MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(5,12,24,0.92); z-index: 100; align-items: center; justify-content: center; padding: 1rem; }
+.modal-overlay.open { display: flex; }
+.modal { background: #0D1C35; border: 1px solid var(--border-light); border-radius: 16px; width: 100%; max-width: 660px; max-height: 90vh; overflow-y: auto; padding: 1.75rem; animation: mi 0.22s ease; }
+@keyframes mi { from{opacity:0;transform:scale(0.96) translateY(8px)} to{opacity:1;transform:scale(1) translateY(0)} }
+.modal-hd { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; }
+.modal-title { font-family: 'Syne', sans-serif; font-size: 19px; font-weight: 800; }
+.modal-sub { font-size: 12px; color: var(--muted); margin-top: 3px; }
+.modal-x { background: none; border: none; color: var(--muted); font-size: 22px; cursor: pointer; padding: 0 4px; }
+.modal-x:hover { color: var(--white); }
+
+.orc-banner { display: flex; justify-content: space-between; align-items: center; background: rgba(26,110,245,0.1); border: 1px solid var(--border-light); border-radius: 9px; padding: 0.875rem 1.125rem; margin-bottom: 1.125rem; }
+.orc-cli { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; }
+.orc-meta { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.orc-num { font-family: 'Syne', sans-serif; font-size: 11px; color: var(--blue-light); font-weight: 600; letter-spacing: 0.08em; }
+
+.orc-sec { font-family: 'Syne', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--blue-light); margin: 1.125rem 0 0.625rem; }
+.orc-tbl { width: 100%; border-collapse: collapse; }
+.orc-tbl th { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); padding: 5px 7px; border-bottom: 1px solid var(--border); text-align: left; }
+.orc-tbl th.r,.orc-tbl td.r { text-align: right; }
+.orc-tbl th.c,.orc-tbl td.c { text-align: center; }
+.orc-tbl td { font-size: 12px; color: var(--white); padding: 7px 7px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.orc-tbl tr:last-child td { border-bottom: none; }
+.td-name { font-weight: 500; }
+.td-m { color: var(--muted); }
+
+.orc-tots { margin-top: 1.125rem; background: rgba(26,110,245,0.08); border: 1px solid var(--border-light); border-radius: 9px; padding: 0.875rem 1.125rem; }
+.ot-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 12px; }
+.ot-row .l { color: var(--muted); }
+.ot-row .v { color: var(--white); font-weight: 500; }
+.ot-grand { display: flex; justify-content: space-between; padding-top: 9px; margin-top: 5px; border-top: 1px solid var(--border); }
+.ot-grand .l { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; }
+.ot-grand .v { font-family: 'Syne', sans-serif; font-size: 19px; font-weight: 800; color: var(--blue-light); }
+
+.orc-note { font-size: 11px; color: var(--muted); margin-top: 0.875rem; line-height: 1.6; font-style: italic; text-align: center; }
+.orc-acts { display: flex; gap: 8px; margin-top: 1.125rem; }
+.orc-acts button { flex: 1; padding: 11px; border-radius: 8px; font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; border: none; transition: background 0.15s; }
+.btn-print { background: var(--blue); color: var(--white); }
+.btn-print:hover { background: var(--blue-light); }
+.btn-cls { background: rgba(255,255,255,0.06); color: var(--white); border: 1px solid var(--border) !important; }
+.btn-cls:hover { background: rgba(255,255,255,0.1); }
+
+@media (max-width: 720px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; }
+  .main { padding: 1rem; }
+  .header { padding: 1rem; }
+}
+@media print {
+  body { background: #fff; color: #000; }
+  .modal-overlay { display: flex !important; position: static; background: #fff; padding: 0; }
+  .modal { background: #fff; color: #000; border: none; max-height: none; padding: 1rem; }
+  .modal-title,.modal-sub,.orc-cli,.orc-meta,.orc-num,.orc-sec,.td-name,.ot-grand .l { color: #000 !important; }
+  .orc-tbl th,.orc-tbl td,.ot-row .l,.ot-row .v { color: #333 !important; }
+  .ot-grand .v { color: #1A6EF5 !important; }
+  .orc-note { color: #666 !important; }
+  .orc-acts, .modal-x, .header, .main, .sidebar { display: none !important; }
+  .modal-overlay { align-items: flex-start; justify-content: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-area">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 1 7 7c0 2.5-1.3 4.7-3.3 6H8.3A7 7 0 0 1 12 2z"/></svg>
+    </div>
+    <div>
+      <div class="logo-text">INOVA <span style="font-weight:400;color:var(--muted);font-size:14px">soluções</span></div>
+      <div class="logo-sub">Orçamento interativo</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="header-client">Cliente: Ryan</div>
+    <div class="header-date">Itabuna, BA · <span id="today"></span></div>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="main">
+
+    <div class="section">
+      <div class="section-label">Assistente de voz</div>
+      <div class="product-card" data-id="echo" data-name="Amazon Echo Dot 5ª geração" data-cat="Assistente de voz" data-product="280" data-service="0">
+        <div class="badge badge-rec">recomendado</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Amazon Echo Dot 5ª geração</div>
+            <div class="card-spec">Smart speaker com Alexa · Wi-Fi dual band · Bivolt · Hub central de automação</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 280</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 280</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Iluminação inteligente RGB/CCT — luz quente, fria e colorida</div>
+
+      <div class="product-card" data-id="lamp" data-name="Lâmpada Elgin Smart Color 10W (RGB+CCT)" data-cat="Iluminação" data-product="55" data-service="0">
+        <div class="badge badge-prio">prioridade</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Lâmpada Elgin Smart Color 10W</div>
+            <div class="card-spec">RGB+CCT · Wi-Fi 2.4GHz · Alexa/Google · E27 · Bivolt · ~800 lúmens · Luz quente/fria/colorida</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 55</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 55</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="sw1" data-name="Interruptor Intelbras EWS 101 — 1 tecla" data-cat="Iluminação" data-product="99" data-service="0">
+        <div class="badge badge-prio">prioridade</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Interruptor Intelbras EWS 101 — 1 tecla</div>
+            <div class="card-spec">Touch · Wi-Fi 2.4GHz · Alexa/Google · App Izy Smart · 4×2 · Bivolt</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 99</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 99</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="sw2" data-name="Interruptor Intelbras EWS 1002 — 2 teclas" data-cat="Iluminação" data-product="140" data-service="0">
+        <div class="badge badge-prio">prioridade</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Interruptor Intelbras EWS 1002 — 2 teclas</div>
+            <div class="card-spec">Touch · Wi-Fi 2.4GHz · Alexa/Google · App Izy Smart · 4×2 · Bivolt</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 140</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 140</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="sw3" data-name="Interruptor Intelbras EWS 1003 — 3 teclas" data-cat="Iluminação" data-product="165" data-service="0">
+        <div class="badge badge-prio">prioridade</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Interruptor Intelbras EWS 1003 — 3 teclas</div>
+            <div class="card-spec">Touch · Wi-Fi 2.4GHz · Alexa/Google · App Izy Smart · 4×2 · Bivolt</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 165</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 165</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Sensor de movimento — escada (prioridade)</div>
+      <div class="product-card" data-id="pir" data-name="Sensor de movimento Wi-Fi Tuya PIR" data-cat="Sensores" data-product="75" data-service="0">
+        <div class="badge badge-prio">prioridade</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Sensor de movimento Wi-Fi Tuya / NovaDigital PIR</div>
+            <div class="card-spec">Wi-Fi 2.4GHz · Detecção 6m 360° · Alexa/Google · Ativa lâmpada automaticamente · App Smart Life</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 75</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 75</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Sensores de abertura — portas e janelas</div>
+      <div class="product-card" data-id="door" data-name="Sensor de abertura Wi-Fi Tuya / Smart Life" data-cat="Sensores" data-product="65" data-service="0">
+        <div class="badge badge-opt">opcional</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Sensor de abertura Wi-Fi Tuya / Smart Life</div>
+            <div class="card-spec">Porta ou janela · Wi-Fi 2.4GHz · Alexa/Google · Notificação no celular · Bateria CR2032</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 65</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 65</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Controle de ar-condicionado</div>
+      <div class="product-card" data-id="ac" data-name="Controle IR universal Intelbras IZY Connect" data-cat="Ar-condicionado" data-product="130" data-service="0">
+        <div class="badge badge-opt">opcional</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Controle IR universal Intelbras IZY Connect</div>
+            <div class="card-spec">Infravermelho · Wi-Fi 2.4GHz · Alexa/Google · Funciona com qualquer AC split · App Izy Smart</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 130</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 130</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Cortinas e persianas motorizadas</div>
+
+      <div class="product-card" data-id="curt-motor" data-name="Motor trilho cortina Wi-Fi Tuya + RF 433" data-cat="Cortinas / Persianas" data-product="349" data-service="0">
+        <div class="badge badge-opt">opcional</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Motor trilho cortina Wi-Fi Tuya + RF 433</div>
+            <div class="card-spec">Até 12m · 40kg · Alexa/Google · App Smart Life · Bivolt · Instala em trilho existente</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 349</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 349</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="curt-kit" data-name="Kit cortina inteligente completa (trilho + motor + controle)" data-cat="Cortinas / Persianas" data-product="870" data-service="0">
+        <div class="badge badge-opt">opcional</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Kit cortina inteligente completa (trilho + motor + controle)</div>
+            <div class="card-spec">Até 4,2m · Wi-Fi 2.4GHz + RF · Controle remoto físico incluso · Alexa/Google · Kit completo</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 870</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 870</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="blind" data-name="Persiana rolo blackout motorizada Wi-Fi (por vão, sob medida)" data-cat="Cortinas / Persianas" data-product="680" data-service="0">
+        <div class="badge badge-opt">opcional</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Persiana rolo blackout motorizada Wi-Fi (por vão)</div>
+            <div class="card-spec">Persiana + motor embutido + Wi-Fi · Sob medida · Alexa/Google · Blackout total · Estimativa por vão</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 680</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 680</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Câmeras de segurança</div>
+
+      <div class="product-card" data-id="cam-c200" data-name="TP-Link Tapo C200 — câmera interna 360°" data-cat="Câmeras" data-product="189" data-service="0">
+        <div class="badge badge-rec">recomendado</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">TP-Link Tapo C200 — interna 360°</div>
+            <div class="card-spec">Full HD 1080p · Visão noturna 9m · Alexa/Google · Áudio bidirecional · App Tapo · 4,8★</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 189</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 189</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="cam-im4" data-name="Intelbras iM4 — câmera interna 360°" data-cat="Câmeras" data-product="250" data-service="0">
+        <div class="badge badge-opt">opcional</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Intelbras iM4 — interna 360°</div>
+            <div class="card-spec">Full HD · Visão noturna · Alexa/Google · Babá eletrônica · App Mibo · Suporte nacional</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 250</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 250</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="cam-c500" data-name="TP-Link Tapo C500 — câmera externa 360°" data-cat="Câmeras" data-product="274" data-service="0">
+        <div class="badge badge-rec">recomendado</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">TP-Link Tapo C500 — externa 360°</div>
+            <div class="card-spec">Full HD · Visão noturna colorida 30m · IP65 à prova d'água · Alexa/Google · Fachada / garagem</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 274</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 274</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="cam-c310" data-name="TP-Link Tapo C310 — câmera externa fixa 3MP" data-cat="Câmeras" data-product="220" data-service="0">
+        <div class="badge badge-opt">opcional</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">TP-Link Tapo C310 — externa fixa 3MP</div>
+            <div class="card-spec">3MP · Visão noturna 30m · IP65 · Alexa/Google · Wi-Fi ou cabo · Boa cobertura de área</div>
+          </div>
+          <div class="card-prices"><div class="price-prod">R$ 220</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap"><button class="qty-btn" onclick="chQty(this,-1)">−</button><input class="qty-num" value="1" readonly><button class="qty-btn" onclick="chQty(this,1)">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 220</span></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section" id="cenas-section">
+      <div class="section-label">Cenas e Rotinas Inteligentes</div>
+
+      <div class="product-card" data-id="cena-visita" data-name="Cena: Receber Visita" data-cat="Cenas e Rotinas" data-product="0" data-service="0">
+        <div class="badge badge-cena">cena inclusa</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Cena: Receber Visita</div>
+            <div class="card-spec">"Alexa, receber visita" - Luzes da sala e varanda em branco quente (aconchegante), AC liga em 23°C.</div>
+          </div>
+          <div class="card-prices"><div class="price-prod" style="font-size:11px;color:var(--muted)">Incluso</div><div class="price-svc" style="font-size:15px;font-weight:700;color:var(--white)">R$ 0</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap" style="opacity:0.3;pointer-events:none"><button class="qty-btn">−</button><input class="qty-num" value="1" readonly><button class="qty-btn">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill" style="display:none">total <span>R$ 0</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="cena-cinema" data-name="Cena: Modo Cinema" data-cat="Cenas e Rotinas" data-product="0" data-service="0">
+        <div class="badge badge-cena">cena inclusa</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Cena: Modo Cinema</div>
+            <div class="card-spec">"Alexa, modo cinema" - Luzes apagam/ficam azuis, TV liga e Ar ajusta para modo silencioso.</div>
+          </div>
+          <div class="card-prices"><div class="price-prod" style="font-size:11px;color:var(--muted)">Incluso</div><div class="price-svc" style="font-size:15px;font-weight:700;color:var(--white)">R$ 0</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap" style="opacity:0.3;pointer-events:none"><button class="qty-btn">−</button><input class="qty-num" value="1" readonly><button class="qty-btn">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill" style="display:none">total <span>R$ 0</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="rotina-dia" data-name="Rotina: Bom Dia / Acordar" data-cat="Cenas e Rotinas" data-product="0" data-service="0">
+        <div class="badge badge-cena">cena inclusa</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Rotina: Bom Dia / Acordar</div>
+            <div class="card-spec">Luzes acendem em branco frio (estimulante) aos poucos, persianas abrem, Alexa fala as notícias/clima.</div>
+          </div>
+          <div class="card-prices"><div class="price-prod" style="font-size:11px;color:var(--muted)">Incluso</div><div class="price-svc" style="font-size:15px;font-weight:700;color:var(--white)">R$ 0</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap" style="opacity:0.3;pointer-events:none"><button class="qty-btn">−</button><input class="qty-num" value="1" readonly><button class="qty-btn">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill" style="display:none">total <span>R$ 0</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="rotina-noite" data-name="Rotina: Boa Noite / Desligar Casa" data-cat="Cenas e Rotinas" data-product="0" data-service="0">
+        <div class="badge badge-cena">cena inclusa</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Rotina: Boa Noite / Desligar Casa</div>
+            <div class="card-spec">"Alexa, boa noite" - Desliga toda a iluminação e ares-condicionados, fecha persianas, alerta de portas.</div>
+          </div>
+          <div class="card-prices"><div class="price-prod" style="font-size:11px;color:var(--muted)">Incluso</div><div class="price-svc" style="font-size:15px;font-weight:700;color:var(--white)">R$ 0</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap" style="opacity:0.3;pointer-events:none"><button class="qty-btn">−</button><input class="qty-num" value="1" readonly><button class="qty-btn">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill" style="display:none">total <span>R$ 0</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="auto-escada" data-name="Automação: Escada Inteligente" data-cat="Cenas e Rotinas" data-product="0" data-service="0">
+        <div class="badge badge-cena">cena inclusa</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Automação: Escada Inteligente</div>
+            <div class="card-spec">Luz acende automaticamente ao detectar presença no primeiro degrau. Ajusta brilho se for madrugada.</div>
+          </div>
+          <div class="card-prices"><div class="price-prod" style="font-size:11px;color:var(--muted)">Incluso</div><div class="price-svc" style="font-size:15px;font-weight:700;color:var(--white)">R$ 0</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap" style="opacity:0.3;pointer-events:none"><button class="qty-btn">−</button><input class="qty-num" value="1" readonly><button class="qty-btn">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill" style="display:none">total <span>R$ 0</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="seg-presenca" data-name="Segurança: Simulação de Presença" data-cat="Cenas e Rotinas" data-product="0" data-service="0">
+        <div class="badge badge-cena">cena inclusa</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Segurança: Simulação de Presença</div>
+            <div class="card-spec">Em viagens, luzes acendem aleatoriamente e a TV liga para simular que há pessoas na casa, afastando curiosos.</div>
+          </div>
+          <div class="card-prices"><div class="price-prod" style="font-size:11px;color:var(--muted)">Incluso</div><div class="price-svc" style="font-size:15px;font-weight:700;color:var(--white)">R$ 0</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap" style="opacity:0.3;pointer-events:none"><button class="qty-btn">−</button><input class="qty-num" value="1" readonly><button class="qty-btn">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill" style="display:none">total <span>R$ 0</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="seg-janela" data-name="Automação: Alerta de Janela Aberta" data-cat="Cenas e Rotinas" data-product="0" data-service="0">
+        <div class="badge badge-cena">cena inclusa</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Automação: Alerta de Janela Aberta</div>
+            <div class="card-spec">Evita desperdício. Se ligar o Ar e a janela estiver aberta, a Alexa avisa imediatamente por voz.</div>
+          </div>
+          <div class="card-prices"><div class="price-prod" style="font-size:11px;color:var(--muted)">Incluso</div><div class="price-svc" style="font-size:15px;font-weight:700;color:var(--white)">R$ 0</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap" style="opacity:0.3;pointer-events:none"><button class="qty-btn">−</button><input class="qty-num" value="1" readonly><button class="qty-btn">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill" style="display:none">total <span>R$ 0</span></div>
+        </div>
+      </div>
+
+      <div id="custom-scene-marker"></div>
+      <div class="custom-scene-wrap">
+        <input type="text" id="custom-scene-name" class="custom-scene-input" placeholder="Digite o nome de uma cena nova (ex: Festa na Piscina)..." onkeypress="if(event.key==='Enter') addCustomSceneCard()">
+        <button class="custom-scene-btn" onclick="addCustomSceneCard()">+ Criar Cena</button>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Serviços fixos INOVA</div>
+
+      <div class="product-card" data-id="svc-visita" data-name="Visita técnica e elaboração de projeto" data-cat="Serviço INOVA" data-product="0" data-service="300">
+        <div class="badge badge-prio">obrigatório</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Visita técnica e elaboração de projeto</div>
+            <div class="card-spec">Levantamento presencial · Mapeamento de ambientes · Projeto técnico completo com lista de materiais final</div>
+          </div>
+          <div class="card-prices"><div class="price-prod" style="font-size:11px;color:var(--muted)">serviço puro</div><div class="price-svc" style="font-size:15px;font-weight:700;color:var(--white)">R$ 300</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap" style="opacity:0.3;pointer-events:none"><button class="qty-btn">−</button><input class="qty-num" value="1" readonly><button class="qty-btn">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 300</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="svc-cenas" data-name="Configuração de cenas e rotinas — Alexa" data-cat="Serviço INOVA" data-product="0" data-service="500">
+        <div class="badge badge-prio">obrigatório</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Configuração de cenas e rotinas — Alexa</div>
+            <div class="card-spec">Cheguei · Boa noite · Receber visita · Acordar · Modo cinema · Desligar tudo · Integração completa Alexa + Smart Life</div>
+          </div>
+          <div class="card-prices"><div class="price-prod" style="font-size:11px;color:var(--muted)">serviço puro</div><div class="price-svc" style="font-size:15px;font-weight:700;color:var(--white)">R$ 500</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap" style="opacity:0.3;pointer-events:none"><button class="qty-btn">−</button><input class="qty-num" value="1" readonly><button class="qty-btn">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 500</span></div>
+        </div>
+      </div>
+
+      <div class="product-card" data-id="svc-entrega" data-name="Treinamento, entrega e suporte 30 dias" data-cat="Serviço INOVA" data-product="0" data-service="350">
+        <div class="badge badge-prio">obrigatório</div>
+        <div class="card-top">
+          <div class="card-info">
+            <div class="card-name">Treinamento, entrega e suporte 30 dias</div>
+            <div class="card-spec">Treinamento presencial com o cliente · Apresentação de todas as cenas · Suporte via WhatsApp por 30 dias</div>
+          </div>
+          <div class="card-prices"><div class="price-prod" style="font-size:11px;color:var(--muted)">serviço puro</div><div class="price-svc" style="font-size:15px;font-weight:700;color:var(--white)">R$ 350</div></div>
+        </div>
+        <div class="card-controls">
+          <div class="qty-wrap" style="opacity:0.3;pointer-events:none"><button class="qty-btn">−</button><input class="qty-num" value="1" readonly><button class="qty-btn">+</button></div>
+          <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+          <div class="subtotal-pill">total <span>R$ 350</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="sidebar">
+    <div class="sidebar-title">Itens selecionados</div>
+    <div id="cart-list" style="flex:1">
+      <div class="cart-empty">Nenhum item adicionado ainda.<br>Selecione produtos ao lado.</div>
+    </div>
+    <div id="totals-box" style="display:none" class="totals-box">
+      <div class="tot-row"><span class="tot-label">Produtos</span><span class="tot-val" id="tot-p">R$ 0</span></div>
+      <div class="tot-row"><span class="tot-label">Serviço INOVA</span><span class="tot-val" id="tot-s">R$ 0</span></div>
+      <div class="tot-div"></div>
+      <div class="tot-row"><span class="tot-grand-l">Total</span><span class="tot-grand-v" id="tot-g">R$ 0</span></div>
+    </div>
+    <button class="gen-btn" id="gen-btn" disabled onclick="openModal()">Gerar orçamento final</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-hd">
+      <div><div class="modal-title">Orçamento Final</div><div class="modal-sub">INOVA Soluções em Tecnologia · Itabuna, BA</div></div>
+      <button class="modal-x" onclick="closeModal()">×</button>
+    </div>
+    <div class="orc-banner">
+      <div><div class="orc-cli">Ryan</div><div class="orc-meta">Casa · Itabuna, BA — Bairro Boa Vista</div></div>
+      <div style="text-align:right"><div class="orc-num" id="orc-num"></div><div class="orc-meta" id="orc-date" style="margin-top:4px"></div></div>
+    </div>
+    <div id="modal-body"></div>
+    <div class="orc-note">Orçamento válido por 15 dias · Não inclui mão de obra elétrica · Frete não incluso · Valores sujeitos a disponibilidade</div>
+    <div class="orc-acts">
+      <button class="btn-print" onclick="window.print()">Imprimir / Salvar PDF</button>
+      <button class="btn-cls" onclick="closeModal()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const cart = {};
+let customSceneCount = 0;
+
+document.getElementById('today').textContent = new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+
+const fmt = v => 'R$ '+Number(v).toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:0});
+
+function getCard(el){ return el.closest('.product-card'); }
+
+function updSub(card){
+  const subEl = card.querySelector('.subtotal-pill span');
+  if(!subEl) return;
+  const qty = parseInt(card.querySelector('.qty-num').value)||1;
+  const p = parseInt(card.dataset.product)||0;
+  const s = parseInt(card.dataset.service)||0;
+  subEl.textContent = fmt((p+s)*qty);
+}
+
+function chQty(btn, dir){
+  const card = getCard(btn);
+  const inp = card.querySelector('.qty-num');
+  let v = Math.max(1, Math.min(50, (parseInt(inp.value)||1)+dir));
+  inp.value = v;
+  updSub(card);
+  if(cart[card.dataset.id]){ cart[card.dataset.id].qty = v; renderCart(); }
+}
+
+function addItem(btn){
+  const card = getCard(btn);
+  const id = card.dataset.id;
+  const qty = parseInt(card.querySelector('.qty-num').value)||1;
+  cart[id] = { id, name:card.dataset.name, cat:card.dataset.cat, qty, p:parseInt(card.dataset.product)||0, s:parseInt(card.dataset.service)||0 };
+  card.classList.add('selected');
+  btn.textContent = '✓ Adicionado'; btn.classList.add('added');
+  renderCart();
+}
+
+function removeItem(id){
+  delete cart[id];
+  const card = document.querySelector(`[data-id="${id}"]`);
+  if(card){ card.classList.remove('selected'); const b=card.querySelector('.add-btn'); b.textContent='Adicionar'; b.classList.remove('added'); }
+  renderCart();
+}
+
+function addCustomSceneCard() {
+  const inp = document.getElementById('custom-scene-name');
+  const name = inp.value.trim();
+  if(!name) return;
+  
+  customSceneCount++;
+  const id = 'cena-custom-' + customSceneCount;
+  const html = `
+    <div class="product-card" data-id="${id}" data-name="Cena: ${name}" data-cat="Cenas e Rotinas" data-product="0" data-service="0">
+      <div class="badge badge-opt">personalizada</div>
+      <div class="card-top">
+        <div class="card-info">
+          <div class="card-name">Cena: ${name}</div>
+          <div class="card-spec">Rotina configurada sob medida no aplicativo / Alexa</div>
+        </div>
+        <div class="card-prices"><div class="price-prod" style="font-size:11px;color:var(--muted)">Incluso</div><div class="price-svc" style="font-size:15px;font-weight:700;color:var(--white)">R$ 0</div></div>
+      </div>
+      <div class="card-controls">
+        <div class="qty-wrap" style="opacity:0.3;pointer-events:none"><button class="qty-btn">−</button><input class="qty-num" value="1" readonly><button class="qty-btn">+</button></div>
+        <button class="add-btn" onclick="addItem(this)">Adicionar</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('custom-scene-marker').insertAdjacentHTML('beforebegin', html);
+  inp.value = '';
+}
+
+function renderCart(){
+  const keys = Object.keys(cart);
+  let totP=0, totS=0, html='';
+  keys.forEach(id=>{
+    const it=cart[id];
+    totP+=it.p*it.qty; totS+=it.s*it.qty;
+    const itemTotal = (it.p+it.s)*it.qty;
+    const totalDisplay = itemTotal === 0 ? 'Incluso' : fmt(itemTotal);
+    html+=`<div class="cart-item"><div class="ci-top"><div class="ci-name">${it.name}</div><button class="ci-remove" onclick="removeItem('${id}')">×</button></div><div class="ci-bottom"><span class="ci-qty">${it.qty}× · ${it.cat}</span><span class="ci-total">${totalDisplay}</span></div></div>`;
+  });
+  const cl = document.getElementById('cart-list');
+  const tb = document.getElementById('totals-box');
+  const gb = document.getElementById('gen-btn');
+  if(!keys.length){
+    cl.innerHTML='<div class="cart-empty">Nenhum item adicionado ainda.<br>Selecione produtos ao lado.</div>';
+    tb.style.display='none'; gb.disabled=true;
+  } else {
+    cl.innerHTML=html; tb.style.display='block'; gb.disabled=false;
+    document.getElementById('tot-p').textContent=fmt(totP);
+    document.getElementById('tot-s').textContent=fmt(totS);
+    document.getElementById('tot-g').textContent=fmt(totP+totS);
+  }
+}
+
+function openModal(){
+  const keys=Object.keys(cart); if(!keys.length)return;
+  const cats={}; let totP=0,totS=0;
+  keys.forEach(id=>{ const it=cart[id]; if(!cats[it.cat])cats[it.cat]=[]; cats[it.cat].push(it); totP+=it.p*it.qty; totS+=it.s*it.qty; });
+  let html='';
+  Object.entries(cats).forEach(([cat,items])=>{
+    html+=`<div class="orc-sec">${cat}</div><table class="orc-tbl"><thead><tr><th>Produto / Serviço</th><th class="c">Qtd</th><th class="r">Produto</th><th class="r">Serviço</th><th class="r">Total</th></tr></thead><tbody>`;
+    items.forEach(it=>{ 
+      const itemTotal = (it.p+it.s)*it.qty;
+      const totalDisplay = itemTotal === 0 ? 'Incluso' : fmt(itemTotal);
+      html+=`<tr><td class="td-name">${it.name}</td><td class="c td-m">${it.qty}</td><td class="r td-m">${it.p>0?fmt(it.p):'—'}</td><td class="r td-m">${it.s>0?fmt(it.s):'—'}</td><td class="r" style="font-weight:500">${totalDisplay}</td></tr>`; 
+    });
+    html+=`</tbody></table>`;
+  });
+  html+=`<div class="orc-tots"><div class="ot-row"><span class="l">Subtotal produtos</span><span class="v">${fmt(totP)}</span></div><div class="ot-row"><span class="l">Subtotal serviço INOVA</span><span class="v">${fmt(totS)}</span></div><div class="ot-grand"><span class="l">Total do projeto</span><span class="v">${fmt(totP+totS)}</span></div></div>`;
+  document.getElementById('modal-body').innerHTML=html;
+  document.getElementById('orc-num').textContent='ORC-'+new Date().getFullYear()+'-'+String(Math.floor(Math.random()*900)+100);
+  document.getElementById('orc-date').textContent=new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('open'); }
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+document.querySelectorAll('.product-card').forEach(updSub);
+</script>
+</body>
+</html>
